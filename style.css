@@ -99,6 +99,26 @@ body {
     color: var(--secondary-text-color);
     white-space: pre-wrap;
 }
+.header-banner {
+    margin-bottom: 40px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+.header-banner a, .header-banner div {
+    display: block;
+}
+.header-banner img {
+    width: 100%;
+    display: block;
+}
+.header-banner-text {
+    background-color: var(--surface-color);
+    padding: 30px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+    text-align: center;
+}
 .post-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
