@@ -9,7 +9,7 @@ banner_subtext: '이곳은 저의 아이디어와 작업물을 공유하는 공�
 # 이미지를 사용하려면 그라데이션은 주석 처리(#) 하세요.
 # background_image: 'https://www.toptal.com/designers/subtlepatterns/uploads/double-bubble-outline.png'
 background_gradient_start: '#4374D9'
-background_gradient_end: '#2a5298'
+background_gradient_end: '#003399'
 
 # === 색상 및 폰트 설정 ===
 accent_color: '#87CEFA' # 링크, 강조 등에 사용될 주요 색상 (LightSkyBlue)
