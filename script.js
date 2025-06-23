@@ -1,4 +1,4 @@
-import { Hangul } from "https://unpkg.com/es-hangul/dist/index.mjs";
+import * as Hangul from "https://unpkg.com/es-hangul/dist/index.mjs";
 
 const GITHUB_USER = 'Tanat05';
 const GITHUB_REPO = 'my-blog-posts';
@@ -7,6 +7,8 @@ const POSTS_DIR = 'posts';
 const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
 const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
+
+
 
 marked.setOptions({
   gfm: true,
@@ -226,14 +228,13 @@ function renderPostList(posts, page = 1) {
     const start = (page - 1) * postsPerPage;
     const end = start + postsPerPage;
     const postsToRender = posts.slice(start, end);
-    let gridHtml = '';
+
     if (page === 1) {
-        gridHtml = '<div class="post-grid"></div>';
+        contentContainer.innerHTML = '<div class="post-grid"></div>';
     }
+
     const grid = contentContainer.querySelector('.post-grid');
-    if (!grid && page > 1) return;
-    
-    let target = page === 1 ? contentContainer : grid;
+    if (!grid) return;
 
     const postsHtml = postsToRender.map(post => {
         const pinIconHtml = post.pinned ? '<div class="pin-icon">📌</div>' : '';
@@ -251,9 +252,9 @@ function renderPostList(posts, page = 1) {
     }).join('');
 
     if (page === 1) {
-        target.innerHTML = `<div class="post-grid">${postsHtml}</div>`;
+        grid.innerHTML = postsHtml;
     } else {
-        target.insertAdjacentHTML('beforeend', postsHtml);
+        grid.insertAdjacentHTML('beforeend', postsHtml);
     }
     
     const isSearchActive = searchInput.value.length > 0;
@@ -381,7 +382,8 @@ async function router() {
 
 loadMoreBtn.addEventListener('click', () => {
     currentPage++;
-    const currentPosts = searchInput.value ? fuse.search(Hangul.disassemble(searchInput.value).join('')).map(result => result.item) : window.allPosts;
+    const query = searchInput.value;
+    const currentPosts = query ? fuse.search(Hangul.disassemble(query).join('')).map(result => result.item) : window.allPosts;
     renderPostList(currentPosts, currentPage);
 });
 
