@@ -3,180 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gwen Style Blog</title>
+    <title>Illustrator's Log</title>
     
-    <!-- Google Fonts: Lora (제목), Lato (본문) -->
+    <!-- Google Fonts: Poppins (강조), Inter (본문), Dancing Script (서명) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;500&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         :root {
-            --text-color: #555;
-            --heading-color: #111;
-            --border-color: #eee;
-            --bg-color: #fff;
-            --accent-color: #000;
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-text-color: #e0e0e0;
+            --secondary-text-color: #a0a0a0;
+            --accent-color: #ffffff;
+            --border-color: rgba(255, 255, 255, 0.1);
         }
         body {
-            font-family: 'Lato', sans-serif;
-            font-size: 15px;
-            line-height: 1.8;
-            color: var(--text-color);
             background-color: var(--bg-color);
+            color: var(--primary-text-color);
+            font-family: 'Inter', sans-serif;
             margin: 0;
+            line-height: 1.7;
         }
         .container {
-            max-width: 1080px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 40px;
         }
-        a { color: var(--heading-color); text-decoration: none; }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Lora', serif;
-            color: var(--heading-color);
-            font-weight: 700;
-        }
-        img { max-width: 100%; height: auto; }
-
-        /* Header & Navigation */
+        
+        /* Header */
         .main-header {
-            padding: 30px 0;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 50px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding-bottom: 40px;
         }
-        .logo h1 {
-            font-size: 2.5rem;
-            margin: 0;
-            cursor: pointer;
+        .logo { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 700; cursor: pointer; }
+        .main-nav a {
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: var(--secondary-text-color);
+            padding: 8px 16px;
+            border-radius: 99px;
+            transition: all 0.2s ease;
         }
-        
-        /* Layout */
-        .layout-wrapper { display: flex; gap: 60px; }
-        .main-content { flex: 1; min-width: 0; }
-        .sidebar { width: 300px; flex-shrink: 0; }
-        
-        /* Sidebar Widget */
-        .widget {
-            border: 1px solid var(--border-color);
-            padding: 25px;
-            margin-bottom: 40px;
-        }
-        .widget-title {
-            font-family: 'Lato', sans-serif;
-            font-weight: 700;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-align: center;
-            margin: -25px -25px 25px -25px;
-            padding: 10px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .about-me img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            display: block;
-            margin: 0 auto 20px;
-            object-fit: cover;
-        }
-        .about-me p { text-align: center; font-size: 14px; margin: 0; }
-        
-        /* Post Item Styles */
-        .post-item { margin-bottom: 50px; }
-        .post-thumbnail img { display: block; width: 100%; object-fit: cover; }
-        .featured-post .post-thumbnail img { height: 450px; }
-        .grid-post .post-thumbnail img { height: 250px; }
-        .post-details { padding: 30px 0; text-align: center; }
-        .post-category {
-            font-family: 'Lato', sans-serif;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #aaa;
-        }
-        .post-title { font-size: 1.8rem; margin: 10px 0 15px; }
-        .post-meta { font-size: 0.8rem; color: #aaa; }
-        .post-excerpt { margin: 20px 0; }
-        .btn-readmore {
-            display: inline-block;
-            background: var(--accent-color);
-            color: #fff;
-            padding: 10px 25px;
-            font-family: 'Lato', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: background-color 0.2s;
-        }
-        .btn-readmore:hover { background-color: #555; }
-        
-        /* Post Grid */
+        .main-nav a:hover { color: var(--accent-color); }
+        .main-nav a.active { background-color: var(--accent-color); color: var(--bg-color); }
+
+        /* Post List (Image Grid) */
         .post-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
         }
-        .post-grid .post-item { margin-bottom: 0; }
-        .post-grid .post-title { font-size: 1.3rem; }
-
+        .grid-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            background-color: var(--surface-color);
+        }
+        .grid-item a { display: block; }
+        .grid-item img {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .grid-item:hover img { transform: scale(1.05); }
+        .grid-item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: #fff;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+        .grid-item:hover .grid-item-overlay { opacity: 1; transform: translateY(0); }
+        .grid-item-title { font-family: 'Poppins', sans-serif; font-size: 1.2rem; font-weight: 700; }
+        
         /* Post Detail View */
-        .post-detail-content {
-            padding: 20px 0;
+        .post-detail-wrapper {
+            display: flex;
+            min-height: 80vh;
+            position: relative;
         }
-        .post-detail-content h1, .post-detail-content h2 { border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
-        .post-detail-content pre { background: #f7f7f7; padding: 15px; border-radius: 4px; overflow-x: auto; }
-        #back-to-list { display: inline-block; margin: 30px 0; font-weight: bold; }
+        .post-detail-wrapper::before { /* Background Watermark */
+            content: attr(data-watermark);
+            position: absolute;
+            top: 50%;
+            left: -5%;
+            transform: translateY(-50%);
+            font-family: 'Poppins', sans-serif;
+            font-size: 20vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            z-index: 0;
+            white-space: nowrap;
+        }
+        .post-info { flex: 1; padding-right: 5%; z-index: 1; }
+        .post-visual { flex: 1; z-index: 1; }
+        .post-visual img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center center;
+        }
+        .post-title-main { font-family: 'Poppins', sans-serif; font-size: 4rem; font-weight: 900; line-height: 1.1; margin: 0; }
+        .post-subtitle {
+            font-size: 1.1rem;
+            color: var(--secondary-text-color);
+            margin: 10px 0 30px 0;
+            padding-left: 5px;
+            border-left: 3px solid var(--accent-color);
+        }
+        .post-body { font-size: 0.95rem; color: var(--secondary-text-color); }
+        .post-signature {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem;
+            margin: 40px 0;
+        }
+        .post-actions a {
+            display: inline-block;
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 99px;
+            margin-right: 15px;
+            font-size: 0.9rem;
+            color: var(--primary-text-color);
+            transition: all 0.2s ease;
+        }
+        .post-actions a:hover { background: var(--accent-color); color: var(--bg-color); }
 
-        /* Giscus Comments */
-        #comments-section { margin-top: 50px; }
-        .loading { padding: 50px; text-align: center; font-size: 1.2rem; }
+        #comments-section { margin-top: 50px; padding: 20px; background-color: var(--surface-color); border-radius: 8px; }
+        .loading { padding: 50px; text-align: center; }
 
         @media (max-width: 992px) {
-            .layout-wrapper { flex-direction: column; }
-            .sidebar { width: 100%; margin-top: 50px; }
-        }
-        @media (max-width: 768px) {
-            .post-grid { grid-template-columns: 1fr; }
+            .post-detail-wrapper { flex-direction: column-reverse; }
+            .post-info { padding-right: 0; }
+            .post-visual { max-height: 50vh; margin-bottom: 40px; }
+            .post-title-main { font-size: 3rem; }
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
+    <div class="container" id="page-container">
         <header class="main-header">
-            <div class="logo">
-                <h1 onclick="location.hash=''">gwen</h1>
-            </div>
+            <div class="logo" onclick="location.hash=''">ILLUSTRATOR</div>
+            <nav class="main-nav">
+                <!-- 네비게이션 메뉴를 추가할 수 있습니다. -->
+                <a href="#home" class="active">Home</a>
+                <a href="#about">About</a>
+            </nav>
         </header>
 
-        <div class="layout-wrapper">
-            <main id="content-container" class="main-content"></main>
-            <aside class="sidebar">
-                <!-- ============================================== -->
-                <!-- 수정 필요 1: 사이드바 프로필 정보를 수정하세요. -->
-                <!-- ============================================== -->
-                <div class="widget about-me">
-                    <h4 class="widget-title">About Me</h4>
-                    <!-- 실제 이미지 URL로 변경하세요. 예: 자신의 깃허브 프로필 사진 -->
-                    <img src="https://avatars.githubusercontent.com/u/9919?s=200" alt="Profile Picture">
-                    <p>이곳에 자기소개를 작성합니다. 깃허브 레포지토리를 이용한 블로그를 만들고 있습니다.</p>
-                </div>
-            </aside>
-        </div>
+        <main id="content-container"></main>
     </div>
 
     <script>
         // =======================================================
-        // 수정 필요 2: 깃허브 글 저장소 정보를 수정하세요.
+        // 수정 필요 1: 깃허브 글 저장소 정보를 수정하세요.
         // =======================================================
         const GITHUB_USER = 'Tanat05';
         const GITHUB_REPO = 'my-blog-posts';
@@ -184,70 +179,38 @@
         // =======================================================
 
         const contentContainer = document.getElementById('content-container');
-        
-        // 오류 수정을 위해 함수를 한번만 제대로 선언합니다.
-        function parseFrontmatter(text) {
-            const frontmatter = {};
-            const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
-            const match = frontmatterRegex.exec(text);
-            let content = text;
+        const pageContainer = document.getElementById('page-container');
 
-            if (match) {
-                const yaml = match[1];
-                content = text.slice(match[0].length);
-                yaml.split('\n').forEach(line => {
-                    const parts = line.split(':');
-                    if (parts.length >= 2) {
-                        const key = parts[0].trim();
-                        const value = parts.slice(1).join(':').trim().replace(/^['"]|['"]$/g, '');
-                        frontmatter[key] = value;
-                    }
-                });
-            }
-            return { frontmatter, content };
-        }
+        function parseFrontmatter(text) { /* ... 이전 코드와 동일 ... */ }
 
         async function renderPostList() {
-            contentContainer.innerHTML = '<div class="loading">Loading posts...</div>';
+            setWatermark("WORKS");
+            contentContainer.innerHTML = '<div class="loading">Loading...</div>';
             try {
-                const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
-                const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-                
-                const files = await response.json();
-                if (!Array.isArray(files)) {
-                    throw new Error("Folder not found or is empty. Check your GITHUB_REPO and POSTS_DIR settings.");
-                }
+                // Fetch and process posts (Same as previous code)
+                const allPosts = await fetchPosts();
 
-                const postPromises = files
-                    .filter(file => file.name.endsWith('.md'))
-                    .map(async file => {
-                        const fileResponse = await fetch(file.download_url);
-                        const text = await fileResponse.text();
-                        const { frontmatter } = parseFrontmatter(text);
-                        return { id: file.name.replace('.md', ''), ...frontmatter, pinned: frontmatter.pinned === 'true' };
-                    });
-
-                const allPosts = await Promise.all(postPromises);
-                const sortedPosts = allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                if (sortedPosts.length === 0) {
-                    contentContainer.innerHTML = '<h3>No posts found.</h3>';
+                if (allPosts.length === 0) {
+                    contentContainer.innerHTML = '<h3>No illustrations found.</h3>';
                     return;
                 }
                 
-                let featuredPostHtml = createPostHtml(sortedPosts[0], true);
-                let gridPostsHtml = '';
+                let gridHtml = '<div class="post-grid">';
+                allPosts.forEach(post => {
+                    gridHtml += `
+                        <div class="grid-item">
+                            <a href="#${post.id}">
+                                <img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}">
+                                <div class="grid-item-overlay">
+                                    <div class="grid-item-title">${post.title || 'Untitled'}</div>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                });
+                gridHtml += '</div>';
 
-                if (sortedPosts.length > 1) {
-                    gridPostsHtml = '<div class="post-grid">';
-                    sortedPosts.slice(1).forEach(post => {
-                        gridPostsHtml += createPostHtml(post, false);
-                    });
-                    gridPostsHtml += '</div>';
-                }
-
-                contentContainer.innerHTML = featuredPostHtml + gridPostsHtml;
+                contentContainer.innerHTML = gridHtml;
 
             } catch (error) {
                 console.error('Failed to load posts:', error);
@@ -255,27 +218,8 @@
             }
         }
 
-        function createPostHtml(post, isFeatured) {
-            const imageUrl = post.image || `https://source.unsplash.com/random/800x${isFeatured ? 500 : 400}?sig=${post.id}`;
-            const postClass = isFeatured ? 'featured-post' : 'grid-post';
-            return `
-                <article class="post-item ${postClass}">
-                    <div class="post-thumbnail">
-                        <a href="#${post.id}"><img src="${imageUrl}" alt="${post.title || ''}"></a>
-                    </div>
-                    <div class="post-details">
-                        <div class="post-category">${post.tags ? post.tags.split(',')[0] : 'Uncategorized'}</div>
-                        <h2 class="post-title"><a href="#${post.id}">${post.title || 'Untitled'}</a></h2>
-                        <div class="post-meta">BY ${post.author || 'Admin'} / ${post.date || ''}</div>
-                        ${isFeatured ? `<div class="post-excerpt">${post.excerpt || ''}</div>` : ''}
-                        <a href="#${post.id}" class="btn-readmore">Read More</a>
-                    </div>
-                </article>
-            `;
-        }
-
         async function renderPost(postId) {
-            contentContainer.innerHTML = '<div class="loading">Loading post...</div>';
+            contentContainer.innerHTML = '<div class="loading">Loading...</div>';
             try {
                 const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${POSTS_DIR}/${postId}.md`;
                 const response = await fetch(fileUrl);
@@ -283,24 +227,33 @@
                 const text = await response.text();
                 const { frontmatter, content } = parseFrontmatter(text);
                 const contentHtml = marked.parse(content);
-                const imageUrl = frontmatter.image || `https://source.unsplash.com/random/800x500?sig=${postId}`;
+
+                setWatermark(frontmatter.title.toUpperCase());
 
                 const postHtml = `
-                    <article>
-                        <div class="post-thumbnail"><img src="${imageUrl}" alt="${frontmatter.title || ''}"></div>
-                        <div class="post-details">
-                            <h1 class="post-title">${frontmatter.title || 'Untitled'}</h1>
-                            <div class="post-meta">BY ${frontmatter.author || 'Admin'} / ${frontmatter.date || ''}</div>
+                    <div class="post-detail-wrapper">
+                        <div class="post-info">
+                            <h1 class="post-title-main">${frontmatter.title || 'Untitled'}</h1>
+                            <p class="post-subtitle">${frontmatter.excerpt || ''}</p>
+                            <div class="post-body">${contentHtml}</div>
+                            <div class="post-signature">${frontmatter.author || 'Illustrator'}</div>
+                             <div class="post-actions">
+                                <!-- 수정 필요 2: 포트폴리오나 소셜 링크로 연결하세요 -->
+                                <a href="https://your-portfolio.com" target="_blank">Portfolio</a>
+                                <a href="https://twitter.com/your-handle" target="_blank">Contact</a>
+                            </div>
                         </div>
-                        <div class="post-detail-content">${contentHtml}</div>
-                    </article>
-                    <a href="#" id="back-to-list">← Back to all posts</a>
+                        <div class="post-visual">
+                            <img src="${frontmatter.image || `https://source.unsplash.com/random/800x800?sig=${postId}`}" alt="${frontmatter.title}">
+                        </div>
+                    </div>
                     <section id="comments-section"></section>
                 `;
                 contentContainer.innerHTML = postHtml;
                 loadGiscus(postId);
             } catch (error) {
                 console.error('Failed to load post:', error);
+                setWatermark("ERROR");
                 contentContainer.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
             }
         }
@@ -317,34 +270,63 @@
             // =======================================================
             // 수정 필요 3: Giscus 정보를 자신의 정보로 수정하세요.
             // =======================================================
-            giscusScript.setAttribute('data-repo', 'Tanat05/my-blog-posts'); // 예: 'Dev-John/my-awesome-blog'
+            giscusScript.setAttribute('data-repo', 'Tanat05/my-blog-posts');
             giscusScript.setAttribute('data-repo-id', 'R_kgDOPAg55g');
-            giscusScript.setAttribute('data-category', 'Announcements'); // Giscus 설정과 동일한 카테고리
+            giscusScript.setAttribute('data-category', 'Announcements');
             giscusScript.setAttribute('data-category-id', 'DIC_kwDOPAg55s4Cr42K');
             // =======================================================
 
             giscusScript.setAttribute('data-mapping', 'specific');
             giscusScript.setAttribute('data-term', term);
+            giscusScript.setAttribute('data-theme', 'dark'); // 다크 테마에 맞게 변경
+            giscusScript.setAttribute('data-lang', 'ko');
+            // 기타 속성들은 이전과 동일하게 유지
             giscusScript.setAttribute('data-strict', '0');
             giscusScript.setAttribute('data-reactions-enabled', '1');
             giscusScript.setAttribute('data-emit-metadata', '0');
             giscusScript.setAttribute('data-input-position', 'bottom');
-            giscusScript.setAttribute('data-theme', 'light');
-            giscusScript.setAttribute('data-lang', 'ko');
             giscusScript.crossOrigin = 'anonymous';
             giscusScript.async = true;
+            
             commentsContainer.appendChild(giscusScript);
+        }
+        
+        // --- 유틸리티 함수들 ---
+        function setWatermark(text) {
+            pageContainer.setAttribute('data-watermark', text || '');
+        }
+
+        async function fetchPosts() {
+            const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+            const files = await response.json();
+            if (!Array.isArray(files)) throw new Error("Folder not found or is empty.");
+            const postPromises = files
+                .filter(file => file.name.endsWith('.md'))
+                .map(async file => {
+                    const fileResponse = await fetch(file.download_url);
+                    const text = await fileResponse.text();
+                    const { frontmatter } = parseFrontmatter(text);
+                    return { id: file.name.replace('.md', ''), ...frontmatter };
+                });
+            const allPosts = await Promise.all(postPromises);
+            return allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
         }
 
         function router() {
             const postId = location.hash.substring(1);
-            if (postId) {
+            if (postId && postId !== 'home' && postId !== 'about') {
                 renderPost(postId);
             } else {
                 renderPostList();
             }
         }
-
+        
+        // --- 초기화 ---
+        const pfm = (t) => {const f={},r=/^---\s*([\s\S]*?)\s*---/,m=r.exec(t);let c=t;if(m){const y=m[1];c=t.slice(m[0].length);y.split('\n').forEach(l=>{const p=l.split(':');if(p.length>=2){const k=p[0].trim(),v=p.slice(1).join(':').trim().replace(/^['"]|['"]$/g,'');f[k]=v}})}return{frontmatter:f,content:c}};
+        parseFrontmatter = pfm;
+        
         window.addEventListener('DOMContentLoaded', router);
         window.addEventListener('hashchange', router);
     </script>
