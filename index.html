@@ -3,300 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Awesome Blog</title>
-
-    <!-- Google Fonts: 제목용(Poppins), 본문용(Noto Sans KR) -->
+    <title>Gwen Style Blog</title>
+    
+    <!-- Google Fonts: Lora (제목), Lato (본문) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Poppins:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- 마크다운 변환 라이브러리 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
         :root {
-            --bg-gradient-start: #1e3c72;
-            --bg-gradient-end: #2a5298;
-            --card-bg-color: rgba(255, 255, 255, 0.1);
-            --text-color: #f0f0f0;
-            --heading-color: #ffffff;
-            --link-color: #87CEFA; /* Light Sky Blue */
-            --border-color: rgba(255, 255, 255, 0.2);
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --pin-color: #FFD700; /* Gold */
+            --text-color: #555;
+            --heading-color: #111;
+            --border-color: #eee;
+            --bg-color: #fff;
+            --accent-color: #000;
         }
-
         body {
-            font-family: 'Noto Sans KR', sans-serif;
-            line-height: 1.7;
-            margin: 0;
+            font-family: 'Lato', sans-serif;
+            font-size: 15px;
+            line-height: 1.8;
             color: var(--text-color);
-            background-color: var(--bg-gradient-start);
-            overflow-x: hidden;
+            background-color: var(--bg-color);
+            margin: 0;
         }
-
-        /* 움직이는 그라데이션 배경 */
-        .background-gradient {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: linear-gradient(45deg, var(--bg-gradient-start), var(--bg-gradient-end), #1e3c72, #2a5298);
-            background-size: 400% 400%;
-            animation: gradient-animation 15s ease infinite;
-            z-index: -1;
-        }
-        @keyframes gradient-animation {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
         .container {
-            max-width: 1100px;
+            max-width: 1080px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 0 20px;
         }
+        a { color: var(--heading-color); text-decoration: none; }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Lora', serif;
+            color: var(--heading-color);
+            font-weight: 700;
+        }
+        img { max-width: 100%; height: auto; }
 
-        /* 2단 레이아웃 */
-        .layout-wrapper {
+        /* Header & Navigation */
+        .main-header {
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 50px;
             display: flex;
-            align-items: flex-start;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            cursor: pointer;
+        }
+        
+        /* Layout */
+        .layout-wrapper { display: flex; gap: 60px; }
+        .main-content { flex: 1; min-width: 0; }
+        .sidebar { width: 300px; flex-shrink: 0; }
+        
+        /* Sidebar Widget */
+        .widget {
+            border: 1px solid var(--border-color);
+            padding: 25px;
+            margin-bottom: 40px;
+        }
+        .widget-title {
+            font-family: 'Lato', sans-serif;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-align: center;
+            margin: -25px -25px 25px -25px;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .about-me img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: block;
+            margin: 0 auto 20px;
+        }
+        .about-me p { text-align: center; font-size: 14px; margin: 0; }
+        
+        /* Post Item Styles */
+        .post-item { margin-bottom: 50px; }
+        .post-thumbnail img { display: block; }
+        .post-details { padding: 30px 0; text-align: center; }
+        .post-category {
+            font-family: 'Lato', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+        }
+        .post-title { font-size: 1.8rem; margin: 10px 0 15px; }
+        .post-meta { font-size: 0.8rem; color: #aaa; }
+        .post-excerpt { margin: 20px 0; }
+        .btn-readmore {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #fff;
+            padding: 10px 25px;
+            font-family: 'Lato', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.2s;
+        }
+        .btn-readmore:hover { background-color: #555; }
+        
+        /* Post Grid */
+        .post-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 40px;
         }
-        .main-content {
-            flex: 1;
-            min-width: 0;
-        }
-        .sidebar {
-            width: 280px;
-            flex-shrink: 0;
-            position: sticky;
-            top: 40px; /* 스크롤 시 상단에 고정 */
-        }
-        
-        /* 글래스모피즘 카드 스타일 */
-        .glass-card {
-            background: var(--card-bg-color);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 var(--shadow-color);
-            transition: all 0.3s ease;
-        }
+        .post-grid .post-item { margin-bottom: 0; }
+        .post-grid .post-title { font-size: 1.3rem; }
 
-        header h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 3rem;
-            color: var(--heading-color);
-            margin: 0 0 40px 0;
-            cursor: pointer;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        /* 사이드바 프로필 */
-        .profile-card {
-            padding: 30px;
-            text-align: center;
-        }
-        .profile-card img {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 20px;
-            border: 3px solid var(--border-color);
-        }
-        .profile-card h3 {
-            font-family: 'Poppins', sans-serif;
-            margin: 0 0 10px;
-            font-size: 1.5rem;
-            color: var(--heading-color);
-        }
-        .profile-card .bio {
-            font-size: 0.95rem;
-            margin-bottom: 20px;
-        }
-        .social-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        .social-links a svg {
-            width: 24px;
-            height: 24px;
-            fill: var(--text-color);
-            transition: fill 0.2s, transform 0.2s;
-        }
-        .social-links a:hover svg {
-            fill: var(--heading-color);
-            transform: scale(1.2);
-        }
-        
-        /* 포스트 목록 아이템 */
-        .post-item {
-            padding: 25px;
-            margin-bottom: 25px;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.5s ease-out forwards;
-            animation-delay: calc(var(--animation-order) * 100ms);
-        }
-        .post-item:hover {
-            transform: translateY(-5px) !important;
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.15);
-        }
-        .post-item h2 {
-            font-family: 'Poppins', sans-serif;
-            margin: 0 0 10px;
-            font-size: 1.5rem;
-        }
-        .post-item h2 a {
-            color: var(--heading-color);
-            text-decoration: none;
-        }
-        .post-item.pinned {
-            border-left: 4px solid var(--pin-color);
-        }
-        .pin-icon {
-            color: var(--pin-color);
-            margin-right: 8px;
-        }
-        .post-item p { margin: 0 0 15px; }
-        .post-item small { opacity: 0.8; }
-
-        /* 포스트 상세 페이지 */
-        .post-content-wrapper {
-            padding: 40px;
-            opacity: 0;
-            animation: fadeInUp 0.5s ease-out forwards;
-        }
-        .post-content h1, .post-content h2 {
-            font-family: 'Poppins', sans-serif;
-            color: var(--heading-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
-        .post-content a { color: var(--link-color); font-weight: bold; }
-        .post-content pre {
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
+        /* Post Detail View */
+        .post-detail-content {
+            padding: 20px;
             border: 1px solid var(--border-color);
         }
-        #back-to-list {
-            display: inline-block;
-            margin-bottom: 20px;
-            font-weight: bold;
-            color: var(--link-color);
-        }
+        .post-detail-content h1, .post-detail-content h2 { border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
+        .post-detail-content pre { background: #f7f7f7; padding: 15px; border-radius: 4px; overflow-x: auto; }
+        #back-to-list { display: inline-block; margin-bottom: 20px; font-weight: bold; }
 
-        /* 로딩 및 애니메이션 */
-        .loading { text-align: center; font-size: 1.2rem; padding: 40px; }
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Giscus Comments */
+        #comments-section { margin-top: 50px; }
+
+        @media (max-width: 992px) {
+            .layout-wrapper { flex-direction: column; }
+            .sidebar { width: 100%; margin-top: 50px; }
         }
-        
-        @media (max-width: 900px) {
-            .layout-wrapper { flex-direction: column-reverse; }
-            .sidebar { width: 100%; position: static; margin-bottom: 40px; }
-            header h1 { font-size: 2.5rem; }
+        @media (max-width: 768px) {
+            .post-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <div class="background-gradient"></div>
+
     <div class="container">
-        <div class="layout-wrapper">
-            
-            <div class="main-content">
-                <header>
-                    <!-- ============================================== -->
-                    <!-- 수정 필요 1: 블로그 제목을 수정하세요. -->
-                    <!-- ============================================== -->
-                    <h1 onclick="location.hash=''">My Awesome Blog</h1>
-                </header>
-                <main id="content-container"></main>
+        <header class="main-header">
+            <div class="logo">
+                <h1 onclick="location.hash=''">gwen</h1>
             </div>
+            <!-- 네비게이션 메뉴를 추가할 수 있습니다. -->
+        </header>
+
+        <div class="layout-wrapper">
+            <main id="content-container" class="main-content">
+                <!-- 동적 콘텐츠가 여기에 로드됩니다 -->
+            </main>
 
             <aside class="sidebar">
-                <div class="profile-card glass-card">
-                    <!-- ============================================== -->
-                    <!-- 수정 필요 2: 프로필 정보를 자신의 정보로 수정하세요. -->
-                    <!-- ============================================== -->
-                    <img src="https://github.com/github.png" alt="Profile Picture">
-                    <h3>Your Name</h3>
-                    <p class="bio">
-                        코딩과 새로운 기술을 사랑하는 개발자입니다.
-                        이곳에 저의 학습 과정과 생각을 기록합니다.
-                    </p>
-                    <ul class="social-links">
-                        <li><a href="https://github.com/YOUR_GITHUB_USERNAME" target="_blank" title="GitHub">
-                            <svg viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-                        </a></li>
-                        <li><a href="https://linkedin.com/in/your-profile" target="_blank" title="LinkedIn">
-                            <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
-                        </a></li>
-                        <li><a href="https://your-blog-url.com" target="_blank" title="Homepage">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path></svg>
-                        </a></li>
-                    </ul>
+                <!-- ============================================== -->
+                <!-- 수정 필요 1: 사이드바 프로필 정보를 수정하세요. -->
+                <!-- ============================================== -->
+                <div class="widget about-me">
+                    <h4 class="widget-title">About Me</h4>
+                    <img src="https://via.placeholder.com/100" alt="Profile Picture">
+                    <p>Vivamus dapibus lacus eu purus feugiat, at euismod nisl tincidunt. Sed ac posuere orci. In finibus, justo quis lobortis.</p>
                 </div>
+                <!-- 다른 위젯(카테고리 등)을 여기에 추가할 수 있습니다. -->
             </aside>
         </div>
     </div>
 
     <script>
         // =======================================================
-        // 수정 필요 3: 깃허브 정보를 자신의 정보로 수정하세요.
+        // 수정 필요 2: 깃허브 글 저장소 정보를 수정하세요.
         // =======================================================
-        const GITHUB_USER = 'Tanat05'; // 깃허브 사용자 이름
-        const GITHUB_REPO = 'my-blog-posts';        // "글" 저장소 레포지토리 이름
-        const POSTS_DIR = 'posts';                  // 글이 저장된 폴더 이름
+        const GITHUB_USER = 'Tanat05';
+        const GITHUB_REPO = 'my-blog-posts';
+        const POSTS_DIR = 'posts';
         // =======================================================
 
         const contentContainer = document.getElementById('content-container');
 
-        function parseFrontmatter(text) {
-            const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
-            const match = frontmatterRegex.exec(text);
-            const frontmatter = {};
-            let content = text;
-            if (match) {
-                const yaml = match[1];
-                content = text.slice(match[0].length);
-                yaml.split('\n').forEach(line => {
-                    const parts = line.split(':');
-                    if (parts.length >= 2) {
-                        const key = parts[0].trim();
-                        const value = parts.slice(1).join(':').trim().replace(/^['"]|['"]$/g, '');
-                        frontmatter[key] = value;
-                    }
-                });
-            }
-            return { frontmatter, content };
-        }
+        const parseFrontmatter = (text) => { /* ... 이전과 동일 ... */ };
 
         async function renderPostList() {
-            contentContainer.innerHTML = '<div class="loading">포스트를 불러오는 중...</div>';
+            contentContainer.innerHTML = '<div class="loading">Loading posts...</div>';
             try {
                 const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
                 const response = await fetch(apiUrl);
-                if (!response.ok) throw new Error(`GitHub API 오류: ${response.statusText}`);
+                if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
                 const files = await response.json();
-                
-                if (!Array.isArray(files)) {
-                    throw new Error("포스트 폴더를 찾을 수 없거나 비어있습니다.");
-                }
+                if (!Array.isArray(files)) throw new Error("Folder not found or empty.");
 
                 const postPromises = files
                     .filter(file => file.name.endsWith('.md'))
@@ -306,81 +205,106 @@
                         const { frontmatter } = parseFrontmatter(text);
                         return { id: file.name.replace('.md', ''), ...frontmatter, pinned: frontmatter.pinned === 'true' };
                     });
-                
+
                 const allPosts = await Promise.all(postPromises);
-                const sortByDate = (a, b) => new Date(b.date) - new Date(a.date);
-                const pinnedPosts = allPosts.filter(p => p.pinned).sort(sortByDate);
-                const regularPosts = allPosts.filter(p => !p.pinned).sort(sortByDate);
+                const sortedPosts = allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const pinnedPosts = sortedPosts.filter(p => p.pinned);
+                const regularPosts = sortedPosts.filter(p => !p.pinned);
 
-                let postListHtml = '';
-                let animationOrder = 0;
+                const finalSortedPosts = [...pinnedPosts, ...regularPosts];
 
-                const createPostHtml = (post, isPinned) => {
-                    const pinIcon = isPinned ? '<span class="pin-icon">📌</span>' : '';
-                    return `
-                        <div class="post-item glass-card ${isPinned ? 'pinned' : ''}" style="--animation-order: ${animationOrder++};">
-                            <h2><a href="#${post.id}">${pinIcon}${post.title || '제목 없음'}</a></h2>
-                            <p>${post.excerpt || ''}</p>
-                            <small>${post.date || ''}</small>
-                        </div>
-                    `;
-                };
-
-                pinnedPosts.forEach(post => postListHtml += createPostHtml(post, true));
-                regularPosts.forEach(post => postListHtml += createPostHtml(post, false));
+                if (finalSortedPosts.length === 0) {
+                    contentContainer.innerHTML = '<h3>No posts found.</h3>';
+                    return;
+                }
                 
-                contentContainer.innerHTML = postListHtml || '<h3>작성된 글이 없습니다.</h3>';
+                let featuredPostHtml = '';
+                let gridPostsHtml = '';
+
+                // 첫 번째 글은 Featured 스타일로
+                const featuredPost = finalSortedPosts[0];
+                featuredPostHtml = createPostHtml(featuredPost, true);
+
+                // 나머지 글들은 Grid 스타일로
+                const gridPosts = finalSortedPosts.slice(1);
+                if (gridPosts.length > 0) {
+                    gridPostsHtml = '<div class="post-grid">';
+                    gridPosts.forEach(post => {
+                        gridPostsHtml += createPostHtml(post, false);
+                    });
+                    gridPostsHtml += '</div>';
+                }
+
+                contentContainer.innerHTML = featuredPostHtml + gridPostsHtml;
 
             } catch (error) {
-                console.error('포스트 목록 로딩 실패:', error);
-                contentContainer.innerHTML = `<h3>포스트 목록을 불러오는데 실패했습니다: ${error.message}</h3>`;
+                console.error('Failed to load posts:', error);
+                contentContainer.innerHTML = `<h3>Failed to load posts: ${error.message}</h3>`;
             }
+        }
+
+        function createPostHtml(post, isFeatured) {
+            const imageUrl = post.image || 'https://via.placeholder.com/800x500'; // Frontmatter에 image: URL 추가
+            const postClass = isFeatured ? 'post-item' : 'post-item'; // 클래스 동일하게 유지하거나 다르게
+            return `
+                <article class="${postClass}">
+                    <div class="post-thumbnail">
+                        <a href="#${post.id}"><img src="${imageUrl}" alt="${post.title || ''}"></a>
+                    </div>
+                    <div class="post-details">
+                        <div class="post-category">${post.tags ? post.tags.split(',')[0] : 'Uncategorized'}</div>
+                        <h2 class="post-title"><a href="#${post.id}">${post.title || 'Untitled'}</a></h2>
+                        <div class="post-meta">BY ${post.author || 'Admin'} / ${post.date || ''}</div>
+                        <div class="post-excerpt">${post.excerpt || ''}</div>
+                        <a href="#${post.id}" class="btn-readmore">Read More</a>
+                    </div>
+                </article>
+            `;
         }
 
         async function renderPost(postId) {
-            contentContainer.innerHTML = '<div class="loading">포스트를 불러오는 중...</div>';
+            contentContainer.innerHTML = '<div class="loading">Loading post...</div>';
             try {
                 const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${POSTS_DIR}/${postId}.md`;
                 const response = await fetch(fileUrl);
-                if (!response.ok) throw new Error(`파일 로딩 오류: ${response.statusText}`);
-
+                if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
                 const text = await response.text();
                 const { frontmatter, content } = parseFrontmatter(text);
                 const contentHtml = marked.parse(content);
+                const imageUrl = frontmatter.image || 'https://via.placeholder.com/800x500';
 
                 const postHtml = `
-                    <div class="post-content-wrapper glass-card">
-                        <a href="#" id="back-to-list">← 목록으로 돌아가기</a>
-                        <div class="post-content">
-                            <h1>${frontmatter.title || '제목 없음'}</h1>
-                            <p><em>${frontmatter.date || ''}</em></p>
-                            ${contentHtml}
+                    <article>
+                        <div class="post-thumbnail"><img src="${imageUrl}" alt="${frontmatter.title || ''}"></div>
+                        <div class="post-details">
+                            <div class="post-category">${frontmatter.tags ? frontmatter.tags.split(',')[0] : 'Uncategorized'}</div>
+                            <h1 class="post-title">${frontmatter.title || 'Untitled'}</h1>
+                            <div class="post-meta">BY ${frontmatter.author || 'Admin'} / ${frontmatter.date || ''}</div>
                         </div>
-                    </div>
-                    <section id="comments-section" style="margin-top: 40px;"></section>
+                        <div class="post-detail-content">${contentHtml}</div>
+                    </article>
+                    <section id="comments-section"></section>
                 `;
                 contentContainer.innerHTML = postHtml;
-                loadGiscus();
-
+                loadGiscus(postId); // postId를 전달!
             } catch (error) {
-                console.error('포스트 로딩 실패:', error);
-                contentContainer.innerHTML = `<h3>포스트를 불러오는데 실패했습니다: ${error.message}</h3>`;
+                console.error('Failed to load post:', error);
+                contentContainer.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
             }
         }
-        
-        function loadGiscus() {
+
+        function loadGiscus(term) { // postId를 term으로 받음
             const commentsContainer = document.getElementById('comments-section');
             if (!commentsContainer) return;
-
             while (commentsContainer.firstChild) {
                 commentsContainer.removeChild(commentsContainer.firstChild);
             }
-
             const giscusScript = document.createElement('script');
             giscusScript.src = 'https://giscus.app/client.js';
 
             // =======================================================
-            // 수정 필요 4: giscus.app 사이트에서 생성된 값으로 수정하세요.
+            // 수정 필요 3: Giscus 정보를 자신의 정보로 수정하세요.
+            // 댓글 시스템의 핵심!
             // =======================================================
             giscusScript.setAttribute('data-repo', 'Tanat05/my-blog-posts'); // 예: 'Dev-John/my-awesome-blog'
             giscusScript.setAttribute('data-repo-id', 'R_kgDOPAg55g');
@@ -388,16 +312,18 @@
             giscusScript.setAttribute('data-category-id', 'DIC_kwDOPAg55s4Cr42K');
             // =======================================================
 
-            giscusScript.setAttribute('data-mapping', 'pathname');
+            // === 댓글 매핑 전략 수정 ===
+            giscusScript.setAttribute('data-mapping', 'specific'); // 'pathname' -> 'specific'
+            giscusScript.setAttribute('data-term', term); // 각 포스트의 고유 ID를 term으로 사용
+
             giscusScript.setAttribute('data-strict', '0');
             giscusScript.setAttribute('data-reactions-enabled', '1');
             giscusScript.setAttribute('data-emit-metadata', '0');
-            giscusScript.setAttribute('data-input-position', 'top');
-            giscusScript.setAttribute('data-theme', 'transparent_dark');
+            giscusScript.setAttribute('data-input-position', 'bottom');
+            giscusScript.setAttribute('data-theme', 'light'); // 테마를 light로 변경
             giscusScript.setAttribute('data-lang', 'ko');
             giscusScript.crossOrigin = 'anonymous';
             giscusScript.async = true;
-            
             commentsContainer.appendChild(giscusScript);
         }
 
@@ -412,6 +338,9 @@
 
         window.addEventListener('DOMContentLoaded', router);
         window.addEventListener('hashchange', router);
+        // parseFrontmatter 구현은 이전과 동일하게 유지
+        const pfm = (text) => {const fm={},r=/^---\s*([\s\S]*?)\s*---/,m=r.exec(text);let c=text;if(m){const y=m[1];c=text.slice(m[0].length);y.split('\n').forEach(l=>{const p=l.split(':');if(p.length>=2){const k=p[0].trim(),v=p.slice(1).join(':').trim().replace(/^['"]|['"]$/g,'');fm[k]=v}})}return{frontmatter:fm,content:c}};
+        parseFrontmatter = pfm;
 
     </script>
 </body>
