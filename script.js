@@ -6,9 +6,8 @@ const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
 const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 
-const contentContainer = document.getElementById('content-container');
+const mainContentArea = document.getElementById('main-content-area');
 
-// === [수정됨] 버그가 해결된 새로운 Frontmatter 파서 ===
 function parseFrontmatter(text) {
     const frontmatter = {};
     const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
@@ -21,11 +20,11 @@ function parseFrontmatter(text) {
     let lastListItem = null;
 
     yaml.split('\n').forEach(line => {
-        if (line.trim() === '') return;
+        if (line.trim().startsWith('#') || line.trim() === '') return;
 
         const indent = line.match(/^\s*/)[0].length;
 
-        if (indent === 0) { // 최상위 레벨 (키 또는 리스트 시작)
+        if (indent === 0) {
             currentListKey = null;
             const parts = line.split(':');
             const key = parts[0].trim();
@@ -37,14 +36,14 @@ function parseFrontmatter(text) {
                 frontmatter[key] = [];
                 currentListKey = key;
             }
-        } else if (currentListKey && /^\s*-/.test(line)) { // 리스트 아이템
+        } else if (currentListKey && /^\s*-/.test(line)) {
             const itemMatch = line.match(/^\s*-\s*(\w+):\s*(.*)/);
             if (itemMatch) {
                 const [, key, value] = itemMatch;
                 lastListItem = { [key]: value.replace(/^['"]|['"]$/g, '') };
                 frontmatter[currentListKey].push(lastListItem);
             }
-        } else if (lastListItem && /^\s+/.test(line)) { // 리스트 아이템의 하위 속성
+        } else if (lastListItem && /^\s+/.test(line)) {
             const subItemMatch = line.match(/^\s+(\w+):\s*(.*)/);
             if(subItemMatch) {
                 const [, key, value] = subItemMatch;
@@ -129,7 +128,7 @@ function renderPostList(posts) {
         `;
     });
     gridHtml += '</div>';
-    contentContainer.innerHTML = gridHtml;
+    mainContentArea.innerHTML = gridHtml;
 }
 
 async function renderPost(postId) {
@@ -149,11 +148,11 @@ async function renderPost(postId) {
             </div>
             <section id="comments-section"></section>
         `;
-        contentContainer.innerHTML = postHtml;
+        mainContentArea.innerHTML = postHtml;
         loadGiscus(postId);
     } catch (error) {
         console.error('Failed to load post:', error);
-        contentContainer.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
+        mainContentArea.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
     }
 }
 
@@ -179,6 +178,44 @@ function renderProfile(data) {
     } else {
         nameEl.textContent = 'Profile Error';
         bioEl.textContent = 'Could not load profile.';
+    }
+}
+
+function applyCustomization(data) {
+    if (!data) return;
+
+    if (data.theme_colors) {
+        const styleEl = document.getElementById('custom-theme-style');
+        let cssText = ':root {';
+        for (const [key, value] of Object.entries(data.theme_colors)) {
+            cssText += `${key}: ${value}; `;
+        }
+        cssText += '}';
+        styleEl.textContent = cssText;
+    }
+
+    if (data.google_fonts_url) {
+        const fontEl = document.getElementById('custom-google-font');
+        fontEl.href = data.google_fonts_url;
+    }
+
+    const bannerContainer = document.getElementById('header-banner-container');
+    if (data.header_banner) {
+        const banner = data.header_banner;
+        let bannerHtml = '';
+        
+        const contentHtml = banner.image 
+            ? `<img src="${banner.image}" alt="Header Banner">`
+            : `<div class="header-banner-text">${banner.text}</div>`;
+        
+        if (banner.url) {
+            bannerHtml = `<div class="header-banner"><a href="${banner.url}" target="_blank" rel="noopener noreferrer">${contentHtml}</a></div>`;
+        } else {
+            bannerHtml = `<div class="header-banner">${contentHtml}</div>`;
+        }
+        bannerContainer.innerHTML = bannerHtml;
+    } else {
+        bannerContainer.innerHTML = '';
     }
 }
 
@@ -209,7 +246,7 @@ function loadGiscus(term) {
 }
 
 async function router() {
-    contentContainer.innerHTML = '<div class="loading">Loading...</div>';
+    mainContentArea.innerHTML = '<div class="loading">Loading...</div>';
     const hash = location.hash.substring(1);
     const decodedHash = decodeURIComponent(hash);
 
@@ -218,7 +255,7 @@ async function router() {
             window.allPosts = await fetchAllPosts();
         } catch (error) {
             console.error('Failed to pre-fetch posts:', error);
-            contentContainer.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
+            mainContentArea.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
             return;
         }
     }
@@ -231,6 +268,7 @@ async function router() {
 
 window.addEventListener('DOMContentLoaded', async () => {
     const profileData = await loadProfileData();
+    applyCustomization(profileData);
     renderProfile(profileData);
     router();
 });
