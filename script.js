@@ -1,10 +1,10 @@
-const GITHUB_USER = 'Tanat05';
+const GITHUB_USER = 'YOUR_GITHUB_USERNAME';
 const GITHUB_REPO = 'my-blog-posts';
 const POSTS_DIR = 'posts';
 
-const GISCUS_REPO = 'Tanat05/my-blog-posts';
-const GISCUS_REPO_ID = 'R_kgDOPAg55g';
-const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
+const GISCUS_REPO = '[YOUR_USERNAME]/[YOUR_WEBSITE_REPO]';
+const GISCUS_REPO_ID = '[YOUR_REPO_ID]';
+const GISCUS_CATEGORY_ID = '[YOUR_CATEGORY_ID]';
 
 marked.setOptions({
   gfm: true,
@@ -21,6 +21,9 @@ marked.setOptions({
 const contentContainer = document.getElementById('content-container');
 const bannerContainer = document.getElementById('banner-container');
 const mobileProfileContainer = document.getElementById('mobile-profile-container');
+
+let currentPage = 1;
+const postsPerPage = 9;
 
 function parseFrontmatter(text) {
     const frontmatter = {};
@@ -177,10 +180,18 @@ async function loadProfileData() {
     }
 }
 
-function renderPostList(posts) {
+function renderPostList(posts, page = 1) {
     mobileProfileContainer.style.display = 'none';
-    let gridHtml = '<div class="post-grid">';
-    posts.forEach(post => {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const loadMoreContainer = document.getElementById('load-more-container');
+    const start = (page - 1) * postsPerPage;
+    const end = start + postsPerPage;
+    const postsToRender = posts.slice(start, end);
+    let gridHtml = '';
+    if (page === 1) {
+        gridHtml = '<div class="post-grid">';
+    }
+    postsToRender.forEach(post => {
         const pinIconHtml = post.pinned ? '<div class="pin-icon">📌</div>' : '';
         gridHtml += `
             <div class="grid-item">
@@ -194,8 +205,17 @@ function renderPostList(posts) {
             </div>
         `;
     });
-    gridHtml += '</div>';
-    contentContainer.innerHTML = gridHtml;
+    if (page === 1) {
+        gridHtml += '</div>';
+        contentContainer.innerHTML = gridHtml;
+    } else {
+        contentContainer.querySelector('.post-grid').insertAdjacentHTML('beforeend', gridHtml);
+    }
+    if (end >= posts.length) {
+        loadMoreContainer.style.display = 'none';
+    } else {
+        loadMoreContainer.style.display = 'block';
+    }
 }
 
 async function renderPost(postId) {
@@ -289,6 +309,7 @@ async function router() {
     contentContainer.innerHTML = '<div class="loading">Loading...</div>';
     const hash = location.hash.substring(1);
     const decodedHash = decodeURIComponent(hash);
+    const loadMoreContainer = document.getElementById('load-more-container');
 
     if (!window.allPosts) {
         try {
@@ -302,12 +323,19 @@ async function router() {
     
     if (window.allPosts.some(p => p.id === decodedHash)) {
         bannerContainer.style.display = 'none';
+        loadMoreContainer.style.display = 'none';
         renderPost(decodedHash);
     } else {
         renderBanner(window.configData);
-        renderPostList(window.allPosts);
+        currentPage = 1;
+        renderPostList(window.allPosts, currentPage);
     }
 }
+
+document.getElementById('load-more-btn').addEventListener('click', () => {
+    currentPage++;
+    renderPostList(window.allPosts, currentPage);
+});
 
 window.addEventListener('DOMContentLoaded', async () => {
     const [configData, profileData] = await Promise.all([
