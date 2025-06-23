@@ -1,4 +1,4 @@
-import * as Hangul from "https://unpkg.com/es-hangul/dist/index.mjs";
+import { getChoseong } from "https://unpkg.com/es-hangul/dist/index.mjs";
 
 const GITHUB_USER = 'Tanat05';
 const GITHUB_REPO = 'my-blog-posts';
@@ -7,7 +7,6 @@ const POSTS_DIR = 'posts';
 const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
 const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
-
 
 
 marked.setOptions({
@@ -31,7 +30,6 @@ const loadMoreBtn = document.getElementById('load-more-btn');
 let currentPage = 1;
 const postsPerPage = 9;
 const RECENT_POSTS_LIMIT = 5;
-let fuse;
 
 function parseFrontmatter(text) {
     const frontmatter = {};
@@ -152,7 +150,7 @@ async function fetchAllPosts() {
         const text = await fileResponse.text();
         const { frontmatter } = parseFrontmatter(text);
         const title = formatTitleFromId(file.name);
-        return { id, title, pinned: frontmatter.pinned === 'true', jamoTitle: Hangul.disassemble(title).join(''), ...frontmatter };
+        return { id, title, pinned: frontmatter.pinned === 'true', choseongTitle: getChoseong(title), ...frontmatter };
     });
     
     const allPosts = await Promise.all(postPromises);
@@ -228,11 +226,9 @@ function renderPostList(posts, page = 1) {
     const start = (page - 1) * postsPerPage;
     const end = start + postsPerPage;
     const postsToRender = posts.slice(start, end);
-
     if (page === 1) {
         contentContainer.innerHTML = '<div class="post-grid"></div>';
     }
-
     const grid = contentContainer.querySelector('.post-grid');
     if (!grid) return;
 
@@ -357,11 +353,6 @@ async function router() {
     if (!window.allPosts) {
         try {
             window.allPosts = await fetchAllPosts();
-            fuse = new Fuse(window.allPosts, {
-                keys: ['title', 'excerpt', 'jamoTitle'],
-                includeScore: true,
-                threshold: 0.4,
-            });
         } catch (error) {
             console.error('Failed to pre-fetch posts:', error);
             contentContainer.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
@@ -382,17 +373,21 @@ async function router() {
 
 loadMoreBtn.addEventListener('click', () => {
     currentPage++;
-    const query = searchInput.value;
-    const currentPosts = query ? fuse.search(Hangul.disassemble(query).join('')).map(result => result.item) : window.allPosts;
+    const query = searchInput.value.toLowerCase();
+    const currentPosts = query ? window.allPosts.filter(post => 
+        post.title.toLowerCase().includes(query) || 
+        post.choseongTitle.includes(query)
+    ) : window.allPosts;
     renderPostList(currentPosts, currentPage);
 });
 
 searchInput.addEventListener('input', (e) => {
-    const query = e.target.value;
+    const query = e.target.value.toLowerCase();
     if (query) {
-        const jamoQuery = Hangul.disassemble(query).join('');
-        const results = fuse.search(jamoQuery);
-        const filteredPosts = results.map(result => result.item);
+        const filteredPosts = window.allPosts.filter(post => 
+            post.title.toLowerCase().includes(query) || 
+            post.choseongTitle.includes(query)
+        );
         renderPostList(filteredPosts, 1);
     } else {
         currentPage = 1;
