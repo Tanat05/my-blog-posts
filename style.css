@@ -232,6 +232,9 @@ body {
 #comments-section {
     margin-top: 50px;
 }
+.mobile-only {
+    display: none;
+}
 .loading {
     padding: 50px;
     text-align: center;
@@ -240,10 +243,11 @@ body {
     .layout-wrapper {
         flex-direction: column;
     }
-    .sidebar {
-        width: 100%;
-        position: static;
-        margin-bottom: 40px;
-        order: -1;
+    .sidebar.desktop-only {
+        display: none;
+    }
+    .mobile-only {
+        display: block;
+        margin-top: 50px;
     }
 }
