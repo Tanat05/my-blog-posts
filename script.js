@@ -6,6 +6,7 @@ const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
 const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 
+
 marked.setOptions({
   gfm: true,
   breaks: true,
@@ -24,6 +25,7 @@ const mobileProfileContainer = document.getElementById('mobile-profile-container
 
 let currentPage = 1;
 const postsPerPage = 9;
+const RECENT_POSTS_LIMIT = 5;
 
 function parseFrontmatter(text) {
     const frontmatter = {};
@@ -180,6 +182,40 @@ async function loadProfileData() {
     }
 }
 
+function getRecentPosts() {
+    const posts = sessionStorage.getItem('recentPosts');
+    return posts ? JSON.parse(posts) : [];
+}
+
+function addRecentPost(post) {
+    let recentPosts = getRecentPosts();
+    recentPosts = recentPosts.filter(p => p.id !== post.id);
+    recentPosts.unshift(post);
+    if (recentPosts.length > RECENT_POSTS_LIMIT) {
+        recentPosts.pop();
+    }
+    sessionStorage.setItem('recentPosts', JSON.stringify(recentPosts));
+    renderRecentPosts();
+}
+
+function renderRecentPosts() {
+    const recentPosts = getRecentPosts();
+    const lists = [
+        document.getElementById('recent-posts-list-desktop'),
+        document.getElementById('recent-posts-list-mobile')
+    ];
+    lists.forEach(list => {
+        if (!list) return;
+        const widget = list.parentElement;
+        if (recentPosts.length === 0) {
+            widget.style.display = 'none';
+        } else {
+            widget.style.display = 'block';
+            list.innerHTML = recentPosts.map(p => `<li><a href="#${p.id}">${p.title}</a></li>`).join('');
+        }
+    });
+}
+
 function renderPostList(posts, page = 1) {
     mobileProfileContainer.style.display = 'none';
     const loadMoreBtn = document.getElementById('load-more-btn');
@@ -211,7 +247,8 @@ function renderPostList(posts, page = 1) {
     } else {
         contentContainer.querySelector('.post-grid').insertAdjacentHTML('beforeend', gridHtml);
     }
-    if (end >= posts.length) {
+    const isSearchActive = document.getElementById('search-input').value.length > 0;
+    if (end >= posts.length || isSearchActive) {
         loadMoreContainer.style.display = 'none';
     } else {
         loadMoreContainer.style.display = 'block';
@@ -221,6 +258,7 @@ function renderPostList(posts, page = 1) {
 async function renderPost(postId) {
     try {
         const { title, contentHtml, frontmatter } = await fetchSinglePost(postId);
+        addRecentPost({ id: postId, title: title });
         const postHtml = `
             <div class="post-detail-wrapper">
                 <div class="post-visual">
@@ -236,14 +274,12 @@ async function renderPost(postId) {
             <section id="comments-section"></section>
         `;
         contentContainer.innerHTML = postHtml;
-
         const commentsSection = document.getElementById('comments-section');
         if (commentsSection) {
             contentContainer.insertBefore(mobileProfileContainer, commentsSection);
         } else {
             contentContainer.appendChild(mobileProfileContainer);
         }
-        
         loadGiscus(postId);
     } catch (error) {
         console.error('Failed to load post:', error);
@@ -259,7 +295,6 @@ function renderProfile(data) {
         const bioEl = document.getElementById(`profile-bio-${type}`);
         const linksEl = document.getElementById(`profile-links-${type}`);
         const additionalInfoEl = document.getElementById(`profile-additional-info-${type}`);
-
         if (data && imgEl) {
             imgEl.src = data.image || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
             nameEl.textContent = data.name || 'Your Name';
@@ -282,7 +317,6 @@ function renderProfile(data) {
 function loadGiscus(term) {
     const commentsContainer = document.getElementById('comments-section');
     if (!commentsContainer) return;
-    
     while (commentsContainer.firstChild) {
         commentsContainer.removeChild(commentsContainer.firstChild);
     }
@@ -310,7 +344,6 @@ async function router() {
     const hash = location.hash.substring(1);
     const decodedHash = decodeURIComponent(hash);
     const loadMoreContainer = document.getElementById('load-more-container');
-
     if (!window.allPosts) {
         try {
             window.allPosts = await fetchAllPosts();
@@ -320,7 +353,6 @@ async function router() {
             return;
         }
     }
-    
     if (window.allPosts.some(p => p.id === decodedHash)) {
         bannerContainer.style.display = 'none';
         loadMoreContainer.style.display = 'none';
@@ -328,6 +360,7 @@ async function router() {
     } else {
         renderBanner(window.configData);
         currentPage = 1;
+        document.getElementById('search-input').value = '';
         renderPostList(window.allPosts, currentPage);
     }
 }
@@ -337,16 +370,28 @@ document.getElementById('load-more-btn').addEventListener('click', () => {
     renderPostList(window.allPosts, currentPage);
 });
 
+document.getElementById('search-input').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    if (!query) {
+        router();
+        return;
+    }
+    const filteredPosts = window.allPosts.filter(post => 
+        post.title.toLowerCase().includes(query) || 
+        (post.excerpt && post.excerpt.toLowerCase().includes(query))
+    );
+    renderPostList(filteredPosts, 1);
+});
+
 window.addEventListener('DOMContentLoaded', async () => {
     const [configData, profileData] = await Promise.all([
         loadConfigData(),
         loadProfileData()
     ]);
-    
     window.configData = configData;
-
     applyConfig(configData);
     renderProfile(profileData);
+    renderRecentPosts();
     router();
 });
 
