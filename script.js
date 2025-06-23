@@ -6,7 +6,6 @@ const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
 const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 
-
 marked.setOptions({
   gfm: true,
   breaks: true,
@@ -22,6 +21,8 @@ marked.setOptions({
 const contentContainer = document.getElementById('content-container');
 const bannerContainer = document.getElementById('banner-container');
 const mobileProfileContainer = document.getElementById('mobile-profile-container');
+const searchInput = document.getElementById('search-input');
+const loadMoreBtn = document.getElementById('load-more-btn');
 
 let currentPage = 1;
 const postsPerPage = 9;
@@ -218,7 +219,6 @@ function renderRecentPosts() {
 
 function renderPostList(posts, page = 1) {
     mobileProfileContainer.style.display = 'none';
-    const loadMoreBtn = document.getElementById('load-more-btn');
     const loadMoreContainer = document.getElementById('load-more-container');
     const start = (page - 1) * postsPerPage;
     const end = start + postsPerPage;
@@ -247,7 +247,7 @@ function renderPostList(posts, page = 1) {
     } else {
         contentContainer.querySelector('.post-grid').insertAdjacentHTML('beforeend', gridHtml);
     }
-    const isSearchActive = document.getElementById('search-input').value.length > 0;
+    const isSearchActive = searchInput.value.length > 0;
     if (end >= posts.length || isSearchActive) {
         loadMoreContainer.style.display = 'none';
     } else {
@@ -360,27 +360,28 @@ async function router() {
     } else {
         renderBanner(window.configData);
         currentPage = 1;
-        document.getElementById('search-input').value = '';
+        searchInput.value = '';
         renderPostList(window.allPosts, currentPage);
     }
 }
 
-document.getElementById('load-more-btn').addEventListener('click', () => {
+loadMoreBtn.addEventListener('click', () => {
     currentPage++;
     renderPostList(window.allPosts, currentPage);
 });
 
-document.getElementById('search-input').addEventListener('input', (e) => {
+searchInput.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
-    if (!query) {
-        router();
-        return;
+    if (query) {
+        const filteredPosts = window.allPosts.filter(post => 
+            post.title.toLowerCase().includes(query) || 
+            (post.excerpt && post.excerpt.toLowerCase().includes(query))
+        );
+        renderPostList(filteredPosts, 1);
+    } else {
+        currentPage = 1;
+        renderPostList(window.allPosts, currentPage);
     }
-    const filteredPosts = window.allPosts.filter(post => 
-        post.title.toLowerCase().includes(query) || 
-        (post.excerpt && post.excerpt.toLowerCase().includes(query))
-    );
-    renderPostList(filteredPosts, 1);
 });
 
 window.addEventListener('DOMContentLoaded', async () => {
