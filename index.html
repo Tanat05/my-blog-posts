@@ -5,147 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Illustrator's Log</title>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
     
+    <link rel="stylesheet" href="style.css">
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
-    <style>
-        :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --primary-text-color: #e0e0e0;
-            --secondary-text-color: #a0a0a0;
-            --accent-color: #ffffff;
-            --border-color: rgba(255, 255, 255, 0.1);
-        }
-        body {
-            background-color: var(--bg-color);
-            color: var(--primary-text-color);
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            line-height: 1.7;
-        }
-        .container {
-            max-width: 1400px; /* 전체 너비를 약간 넓힘 */
-            margin: 0 auto;
-            padding: 40px;
-        }
-        
-        /* Header */
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
-        .logo { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 700; cursor: pointer; }
-
-        /* === 레이아웃 === */
-        .layout-wrapper {
-            display: flex;
-            align-items: flex-start;
-            gap: 40px;
-        }
-        .main-content {
-            flex: 1;
-            min-width: 0;
-        }
-        .sidebar {
-            width: 280px;
-            flex-shrink: 0;
-            position: sticky;
-            top: 40px;
-        }
-        
-        /* === 사이드바 프로필 카드 === */
-        .profile-card {
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            padding: 30px;
-            text-align: center;
-        }
-        .profile-card img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 20px;
-            border: 2px solid var(--border-color);
-        }
-        .profile-card h3 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.2rem;
-            margin: 0 0 10px;
-            color: var(--accent-color);
-        }
-        .profile-card p {
-            font-size: 0.9rem;
-            color: var(--secondary-text-color);
-            margin: 0;
-        }
-
-        /* === 포스트 목록 (이미지 그리드) - 수정됨 === */
-        .post-grid {
-            display: grid;
-            /* 화면 너비에 따라 자동으로 1~3개로 조절 */
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-        }
-        .grid-item {
-            position: relative;
-            overflow: hidden;
-            border-radius: 8px;
-            background-color: var(--surface-color);
-            aspect-ratio: 3 / 4; /* 이미지 비율 고정 */
-        }
-        .grid-item a { display: block; width: 100%; height: 100%; }
-        .grid-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.4s ease;
-        }
-        .grid-item:hover img { transform: scale(1.05); }
-        .grid-item-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 20px;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            color: #fff;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.4s ease;
-        }
-        .grid-item:hover .grid-item-overlay { opacity: 1; transform: translateY(0); }
-        .grid-item-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
-        
-        /* === 포스트 상세 페이지 === */
-        .post-detail-wrapper {
-            background-color: var(--surface-color);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .post-visual img { width: 100%; max-height: 60vh; object-fit: cover; }
-        .post-info { padding: 40px; }
-        .post-title-main { font-family: 'Poppins', sans-serif; font-size: 2.5rem; margin-top: 0; }
-        .post-body { color: var(--secondary-text-color); }
-        
-        #comments-section { margin-top: 50px; }
-        .loading { padding: 50px; text-align: center; }
-
-        @media (max-width: 992px) {
-            .layout-wrapper { flex-direction: column; }
-            .sidebar { width: 100%; position: static; margin-bottom: 40px; }
-        }
-    </style>
 </head>
 <body>
-    <div class="container" id="page-container">
+    <div class="container">
         <header class="main-header">
             <div class="logo" onclick="location.hash=''">ILLUSTRATOR</div>
         </header>
@@ -154,165 +23,15 @@
             <main id="content-container" class="main-content"></main>
             
             <aside class="sidebar">
-                <!-- ============================================== -->
-                <!-- 수정 필요 1: 사이드바 프로필 정보를 수정하세요. -->
-                <!-- ============================================== -->
                 <div class="profile-card">
-                    <img src="https://avatars.githubusercontent.com/u/9919?s=200" alt="Profile Picture">
-                    <h3>Your Name</h3>
-                    <p>이곳에 자기소개를 작성하세요. 그림 그리는 것을 좋아합니다.</p>
+                    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Profile Picture" id="profile-image">
+                    <h3 id="profile-name">Loading...</h3>
+                    <p id="profile-bio"></p>
                 </div>
             </aside>
         </div>
     </div>
 
-    <script>
-        // =======================================================
-        // 수정 필요 2: 깃허브 글 저장소 정보를 수정하세요.
-        // =======================================================
-        const GITHUB_USER = 'Tanat05';
-        const GITHUB_REPO = 'my-blog-posts';
-        const POSTS_DIR = 'posts';
-        // =======================================================
-
-        const contentContainer = document.getElementById('content-container');
-        
-        // --- 유틸리티 함수 (이전과 동일) ---
-        function formatTitleFromId(id) {
-            const nameOnly = id.replace(/\.md$/, '');
-            const titlePart = nameOnly.replace(/^\d{4}-\d{2}-\d{2}-/, '');
-            return titlePart.replace(/-+/g, ' ');
-        }
-        async function fetchAllPosts() { /* 이전과 동일 */ }
-        async function fetchSinglePost(postId) { /* 이전과 동일 */ }
-
-        // --- 렌더링 함수 ---
-        async function renderPostList(posts) {
-            let gridHtml = '<div class="post-grid">';
-            posts.forEach(post => {
-                gridHtml += `
-                    <div class="grid-item">
-                        <a href="#${post.id}">
-                            <img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}">
-                            <div class="grid-item-overlay">
-                                <h3 class="grid-item-title">${post.title}</h3>
-                            </div>
-                        </a>
-                    </div>
-                `;
-            });
-            gridHtml += '</div>';
-            contentContainer.innerHTML = gridHtml;
-        }
-
-        async function renderPost(postId) {
-            try {
-                const { title, contentHtml, frontmatter } = await fetchSinglePost(postId);
-                
-                const postHtml = `
-                    <div class="post-detail-wrapper">
-                        <div class="post-visual">
-                            <img src="${frontmatter.image || `https://source.unsplash.com/random/800x500?sig=${postId}`}" alt="${title}">
-                        </div>
-                        <div class="post-info">
-                            <h1 class="post-title-main">${title}</h1>
-                            <p>${frontmatter.excerpt || ''}</p>
-                            <hr style="border-color: ${getComputedStyle(document.documentElement).getPropertyValue('--border-color')}; margin: 30px 0;">
-                            <div class="post-body">${contentHtml}</div>
-                        </div>
-                    </div>
-                    <section id="comments-section"></section>
-                `;
-                contentContainer.innerHTML = postHtml;
-                loadGiscus(postId);
-
-            } catch (error) {
-                console.error('Failed to load post:', error);
-                contentContainer.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
-            }
-        }
-        
-        function loadGiscus(term) { /* 이전과 동일 */ }
-
-        // --- 라우터 및 초기화 (이전과 동일) ---
-        async function router() {
-            contentContainer.innerHTML = '<div class="loading">Loading...</div>';
-            const hash = location.hash.substring(1);
-            const decodedHash = decodeURIComponent(hash);
-
-            if (!window.allPosts) {
-                try {
-                    window.allPosts = await fetchAllPosts();
-                } catch (error) {
-                    contentContainer.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
-                    return;
-                }
-            }
-
-            if (window.allPosts.some(p => p.id === decodedHash)) {
-                renderPost(decodedHash);
-            } else {
-                renderPostList(window.allPosts);
-            }
-        }
-        
-        // --- 나머지 유틸리티 함수 및 초기화 코드는 이전과 동일 ---
-        const pfm = (t) => {const f={},r=/^---\s*([\s\S]*?)\s*---/,m=r.exec(t);let c=t;if(m){const y=m[1];c=t.slice(m[0].length);y.split('\n').forEach(l=>{const p=l.split(':');if(p.length>=2){const k=p[0].trim(),v=p.slice(1).join(':').trim().replace(/^['"]|['"]$/g,'');f[k]=v}})}return{frontmatter:f,content:c}};
-        parseFrontmatter = pfm;
-        const giscusFunc = (term) => {
-            const commentsContainer = document.getElementById('comments-section');
-            if (!commentsContainer) return;
-            while (commentsContainer.firstChild) { commentsContainer.removeChild(commentsContainer.firstChild); }
-            const giscusScript = document.createElement('script');
-            giscusScript.src = 'https://giscus.app/client.js';
-            // =======================================================
-            // 수정 필요 3: Giscus 정보를 자신의 정보로 수정하세요.
-            // =======================================================
-            giscusScript.setAttribute('data-repo', 'Tanat05/my-blog-posts');
-            giscusScript.setAttribute('data-repo-id', 'R_kgDOPAg55g');
-            giscusScript.setAttribute('data-category', 'Announcements');
-            giscusScript.setAttribute('data-category-id', 'DIC_kwDOPAg55s4Cr42K');
-            // =======================================================
-            giscusScript.setAttribute('data-mapping', 'specific');
-            giscusScript.setAttribute('data-term', term);
-            giscusScript.setAttribute('data-theme', 'dark');
-            giscusScript.setAttribute('data-lang', 'ko');
-            giscusScript.setAttribute('data-strict', '0'); giscusScript.setAttribute('data-reactions-enabled', '1'); giscusScript.setAttribute('data-emit-metadata', '0'); giscusScript.setAttribute('data-input-position', 'bottom'); giscusScript.crossOrigin = 'anonymous'; giscusScript.async = true;
-            commentsContainer.appendChild(giscusScript);
-        };
-        loadGiscus = giscusFunc;
-        async function fap() {
-             const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
-            const response = await fetch(apiUrl);
-            if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-            const files = await response.json();
-            if (!Array.isArray(files)) throw new Error("Folder not found or is empty.");
-            const postPromises = files.filter(file => file.name.endsWith('.md')).map(async file => {
-                    const id = file.name.replace(/\.md$/, '');
-                    const fileResponse = await fetch(file.download_url);
-                    const text = await fileResponse.text();
-                    const { frontmatter } = parseFrontmatter(text);
-                    const title = formatTitleFromId(file.name);
-                    return { id, title, ...frontmatter };
-                });
-            const allPosts = await Promise.all(postPromises);
-            return allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-        }
-        fetchAllPosts = fap;
-        async function fsp(postId) {
-            const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${POSTS_DIR}/${postId}.md`;
-            const response = await fetch(fileUrl);
-            if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
-            const text = await response.text();
-            const { frontmatter, content } = parseFrontmatter(text);
-            const title = formatTitleFromId(postId);
-            const contentHtml = marked.parse(content);
-            return { title, contentHtml, frontmatter };
-        }
-        fetchSinglePost = fsp;
-        
-        window.addEventListener('DOMContentLoaded', router);
-        window.addEventListener('hashchange', router);
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
