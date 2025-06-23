@@ -30,6 +30,7 @@ let currentPage = 1;
 const postsPerPage = 9;
 const RECENT_POSTS_LIMIT = 5;
 let fuse;
+let currentDisplayedPosts = [];
 
 function parseFrontmatter(text) {
     const frontmatter = {};
@@ -225,9 +226,11 @@ function renderPostList(posts, page = 1) {
     const start = (page - 1) * postsPerPage;
     const end = start + postsPerPage;
     const postsToRender = posts.slice(start, end);
+
     if (page === 1) {
         contentContainer.innerHTML = '<div class="post-grid"></div>';
     }
+
     const grid = contentContainer.querySelector('.post-grid');
     if (!grid) return;
 
@@ -357,6 +360,17 @@ async function router() {
     if (!window.allPosts) {
         try {
             window.allPosts = await fetchAllPosts();
+            currentDisplayedPosts = window.allPosts;
+            fuse = new Fuse(window.allPosts, {
+                keys: [
+                    { name: 'title', weight: 0.6 },
+                    { name: 'choseongTitle', weight: 0.6 },
+                    { name: 'excerpt', weight: 0.3 },
+                    { name: 'id', weight: 0.1 }
+                ],
+                includeScore: true,
+                threshold: 0.4,
+            });
         } catch (error) {
             console.error('Failed to pre-fetch posts:', error);
             contentContainer.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
@@ -371,32 +385,27 @@ async function router() {
         renderBanner(window.configData);
         currentPage = 1;
         searchInput.value = '';
-        renderPostList(window.allPosts, currentPage);
+        currentDisplayedPosts = window.allPosts;
+        renderPostList(currentDisplayedPosts, currentPage);
     }
 }
 
 loadMoreBtn.addEventListener('click', () => {
     currentPage++;
-    const query = searchInput.value.toLowerCase();
-    const currentPosts = query ? window.allPosts.filter(post => 
-        post.title.toLowerCase().includes(query) || 
-        post.choseongTitle.includes(getChoseong(query))
-    ) : window.allPosts;
-    renderPostList(currentPosts, currentPage);
+    renderPostList(currentDisplayedPosts, currentPage);
 });
 
 searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
+    const query = e.target.value;
     if (query) {
         const choseongQuery = getChoseong(query);
-        const filteredPosts = window.allPosts.filter(post => 
-            post.title.toLowerCase().includes(query) || 
-            post.choseongTitle.includes(choseongQuery)
-        );
-        renderPostList(filteredPosts, 1);
+        const results = fuse.search(choseongQuery);
+        currentDisplayedPosts = results.map(result => result.item);
+        renderPostList(currentDisplayedPosts, 1);
     } else {
         currentPage = 1;
-        renderPostList(window.allPosts, currentPage);
+        currentDisplayedPosts = window.allPosts;
+        renderPostList(currentDisplayedPosts, currentPage);
     }
 });
 
