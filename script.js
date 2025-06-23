@@ -1,0 +1,218 @@
+// =======================================================
+// 수정 필요 1: 깃허브 정보를 자신의 정보로 수정하세요.
+// =======================================================
+const GITHUB_USER = 'YOUR_GITHUB_USERNAME';
+const GITHUB_REPO = 'my-blog-posts'; // 글이 저장된 레포지토리
+const POSTS_DIR = 'posts';
+
+// =======================================================
+// 수정 필요 2: Giscus 정보를 자신의 정보로 수정하세요.
+// =======================================================
+const GISCUS_REPO = '[YOUR_USERNAME]/[YOUR_WEBSITE_REPO]'; // 댓글이 저장될 레포지토리
+const GISCUS_REPO_ID = '[YOUR_REPO_ID]';
+const GISCUS_CATEGORY_ID = '[YOUR_CATEGORY_ID]';
+// =======================================================
+
+
+const contentContainer = document.getElementById('content-container');
+
+// --- 유틸리티 함수 ---
+function parseFrontmatter(text) {
+    const frontmatter = {};
+    const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+    const match = frontmatterRegex.exec(text);
+    let content = text;
+
+    if (match) {
+        const yaml = match[1];
+        content = text.slice(match[0].length);
+        yaml.split('\n').forEach(line => {
+            const parts = line.split(':');
+            if (parts.length >= 2) {
+                const key = parts[0].trim();
+                const value = parts.slice(1).join(':').trim().replace(/^['"]|['"]$/g, '');
+                frontmatter[key] = value;
+            }
+        });
+    }
+    return { frontmatter, content };
+}
+
+function formatTitleFromId(id) {
+    const nameOnly = id.replace(/\.md$/, '');
+    const titlePart = nameOnly.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+    return titlePart.replace(/-+/g, ' ');
+}
+
+// --- 데이터 로딩 함수 ---
+async function fetchAllPosts() {
+    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
+    const response = await fetch(apiUrl);
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+    const files = await response.json();
+    if (!Array.isArray(files)) throw new Error("Folder not found or is empty.");
+    
+    const postPromises = files.filter(file => file.name.endsWith('.md')).map(async file => {
+        const id = file.name.replace(/\.md$/, '');
+        const fileResponse = await fetch(file.download_url);
+        const text = await fileResponse.text();
+        const { frontmatter } = parseFrontmatter(text);
+        const title = formatTitleFromId(file.name);
+        return { id, title, ...frontmatter };
+    });
+    
+    const allPosts = await Promise.all(postPromises);
+    return allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+}
+
+async function fetchSinglePost(postId) {
+    const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${POSTS_DIR}/${postId}.md`;
+    const response = await fetch(fileUrl);
+    if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
+    const text = await response.text();
+    const { frontmatter, content } = parseFrontmatter(text);
+    const title = formatTitleFromId(postId);
+    const contentHtml = marked.parse(content);
+    return { title, contentHtml, frontmatter };
+}
+
+async function loadProfileData() {
+    try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/profile.md`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('profile.md not found');
+        const text = await response.text();
+        const { frontmatter } = parseFrontmatter(text);
+        return frontmatter;
+    } catch (error) {
+        console.error("Failed to load profile data:", error);
+        return null;
+    }
+}
+
+
+// --- 렌더링 함수 ---
+function renderPostList(posts) {
+    let gridHtml = '<div class="post-grid">';
+    posts.forEach(post => {
+        gridHtml += `
+            <div class="grid-item">
+                <a href="#${post.id}">
+                    <img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}">
+                    <div class="grid-item-overlay">
+                        <h3 class="grid-item-title">${post.title}</h3>
+                    </div>
+                </a>
+            </div>
+        `;
+    });
+    gridHtml += '</div>';
+    contentContainer.innerHTML = gridHtml;
+}
+
+async function renderPost(postId) {
+    try {
+        const { title, contentHtml, frontmatter } = await fetchSinglePost(postId);
+        const postHtml = `
+            <div class="post-detail-wrapper">
+                <div class="post-visual">
+                    <img src="${frontmatter.image || `https://source.unsplash.com/random/800x500?sig=${postId}`}" alt="${title}">
+                </div>
+                <div class="post-info">
+                    <h1 class="post-title-main">${title}</h1>
+                    <p>${frontmatter.excerpt || ''}</p>
+                    <hr style="border-color: var(--border-color); margin: 30px 0;">
+                    <div class="post-body">${contentHtml}</div>
+                </div>
+            </div>
+            <section id="comments-section"></section>
+        `;
+        contentContainer.innerHTML = postHtml;
+        loadGiscus(postId);
+    } catch (error) {
+        console.error('Failed to load post:', error);
+        contentContainer.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
+    }
+}
+
+function renderProfile(data) {
+    const imgEl = document.getElementById('profile-image');
+    const nameEl = document.getElementById('profile-name');
+    const bioEl = document.getElementById('profile-bio');
+
+    if (data) {
+        imgEl.src = data.image || imgEl.src;
+        nameEl.textContent = data.name || 'Your Name';
+        bioEl.textContent = data.bio || 'Welcome to my blog.';
+    } else {
+        nameEl.textContent = 'Profile Error';
+        bioEl.textContent = 'Could not load profile.';
+    }
+}
+
+function loadGiscus(term) {
+    const commentsContainer = document.getElementById('comments-section');
+    if (!commentsContainer) return;
+    
+    // 이전 Giscus 인스턴스 제거
+    while (commentsContainer.firstChild) {
+        commentsContainer.removeChild(commentsContainer.firstChild);
+    }
+
+    const giscusScript = document.createElement('script');
+    giscusScript.src = 'https://giscus.app/client.js';
+    giscusScript.setAttribute('data-repo', GISCUS_REPO);
+    giscusScript.setAttribute('data-repo-id', GISCUS_REPO_ID);
+    giscusScript.setAttribute('data-category', 'Announcements');
+    giscusScript.setAttribute('data-category-id', GISCUS_CATEGORY_ID);
+    giscusScript.setAttribute('data-mapping', 'specific');
+    giscusScript.setAttribute('data-term', term);
+    giscusScript.setAttribute('data-theme', 'dark');
+    giscusScript.setAttribute('data-lang', 'ko');
+    giscusScript.setAttribute('data-strict', '0');
+    giscusScript.setAttribute('data-reactions-enabled', '1');
+    giscusScript.setAttribute('data-emit-metadata', '0');
+    giscusScript.setAttribute('data-input-position', 'bottom');
+    giscusScript.crossOrigin = 'anonymous';
+    giscusScript.async = true;
+    
+    commentsContainer.appendChild(giscusScript);
+}
+
+
+// --- 라우터 및 초기화 ---
+async function router() {
+    contentContainer.innerHTML = '<div class="loading">Loading...</div>';
+    const hash = location.hash.substring(1);
+    const decodedHash = decodeURIComponent(hash);
+
+    // 포스트 목록이 없으면 먼저 가져오기
+    if (!window.allPosts) {
+        try {
+            window.allPosts = await fetchAllPosts();
+        } catch (error) {
+            console.error('Failed to pre-fetch posts:', error);
+            contentContainer.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
+            return;
+        }
+    }
+
+    if (window.allPosts.some(p => p.id === decodedHash)) {
+        renderPost(decodedHash);
+    } else {
+        renderPostList(window.allPosts);
+    }
+}
+
+// 페이지가 처음 로드될 때 실행
+window.addEventListener('DOMContentLoaded', async () => {
+    // 프로필 데이터를 먼저 로드하고 렌더링
+    const profileData = await loadProfileData();
+    renderProfile(profileData);
+
+    // 그 다음, 페이지 경로에 맞는 콘텐츠 렌더링
+    router();
+});
+
+// 해시(주소)가 변경될 때마다 실행
+window.addEventListener('hashchange', router);
