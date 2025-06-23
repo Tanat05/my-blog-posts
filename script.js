@@ -1,12 +1,12 @@
 import { getChoseong } from "https://unpkg.com/es-hangul/dist/index.mjs";
 
-const GITHUB_USER = 'Tanat05';
+const GITHUB_USER = 'YOUR_GITHUB_USERNAME';
 const GITHUB_REPO = 'my-blog-posts';
 const POSTS_DIR = 'posts';
 
-const GISCUS_REPO = 'Tanat05/my-blog-posts';
-const GISCUS_REPO_ID = 'R_kgDOPAg55g';
-const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
+const GISCUS_REPO = '[YOUR_USERNAME]/[YOUR_WEBSITE_REPO]';
+const GISCUS_REPO_ID = '[YOUR_REPO_ID]';
+const GISCUS_CATEGORY_ID = '[YOUR_CATEGORY_ID]';
 
 marked.setOptions({
   gfm: true,
@@ -399,7 +399,14 @@ searchInput.addEventListener('input', (e) => {
     const query = e.target.value;
     if (query) {
         const choseongQuery = getChoseong(query);
-        const results = fuse.search(choseongQuery);
+        const searchPattern = {
+          $or: [
+            { title: query },
+            { excerpt: query },
+            { choseongTitle: choseongQuery }
+          ]
+        };
+        const results = fuse.search(searchPattern);
         currentDisplayedPosts = results.map(result => result.item);
         renderPostList(currentDisplayedPosts, 1);
     } else {
