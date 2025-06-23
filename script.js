@@ -27,6 +27,7 @@ const loadMoreBtn = document.getElementById('load-more-btn');
 let currentPage = 1;
 const postsPerPage = 9;
 const RECENT_POSTS_LIMIT = 5;
+let fuse;
 
 function parseFrontmatter(text) {
     const frontmatter = {};
@@ -147,7 +148,7 @@ async function fetchAllPosts() {
         const text = await fileResponse.text();
         const { frontmatter } = parseFrontmatter(text);
         const title = formatTitleFromId(file.name);
-        return { id, title, pinned: frontmatter.pinned === 'true', ...frontmatter };
+        return { id, title, pinned: frontmatter.pinned === 'true', jamoTitle: Hangul.disassemble(title).join(''), ...frontmatter };
     });
     
     const allPosts = await Promise.all(postPromises);
@@ -266,8 +267,8 @@ async function renderPost(postId) {
                 </div>
                 <div class="post-info">
                     <h1 class="post-title-main">${title}</h1>
-                    <p>${frontmatter.excerpt || ''}</p>
-                    <hr style="border-color: var(--border-color); margin: 30px 0;">
+                    <div class="post-meta">${frontmatter.date || ''}</div>
+                    <p class="post-excerpt">${frontmatter.excerpt || ''}</p>
                     <div class="post-body">${contentHtml}</div>
                 </div>
             </div>
@@ -347,6 +348,11 @@ async function router() {
     if (!window.allPosts) {
         try {
             window.allPosts = await fetchAllPosts();
+            fuse = new Fuse(window.allPosts, {
+                keys: ['title', 'excerpt', 'jamoTitle'],
+                includeScore: true,
+                threshold: 0.4,
+            });
         } catch (error) {
             console.error('Failed to pre-fetch posts:', error);
             contentContainer.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
@@ -367,16 +373,16 @@ async function router() {
 
 loadMoreBtn.addEventListener('click', () => {
     currentPage++;
-    renderPostList(window.allPosts, currentPage);
+    const currentPosts = searchInput.value ? fuse.search(searchInput.value).map(result => result.item) : window.allPosts;
+    renderPostList(currentPosts, currentPage);
 });
 
 searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
+    const query = e.target.value;
     if (query) {
-        const filteredPosts = window.allPosts.filter(post => 
-            post.title.toLowerCase().includes(query) || 
-            (post.excerpt && post.excerpt.toLowerCase().includes(query))
-        );
+        const jamoQuery = Hangul.disassemble(query).join('');
+        const results = fuse.search(jamoQuery);
+        const filteredPosts = results.map(result => result.item);
         renderPostList(filteredPosts, 1);
     } else {
         currentPage = 1;
