@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link id="main-font" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.3">
+    <link rel="stylesheet" href="style.css?v=1.0.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -17,13 +17,14 @@
         <header class="main-header">
             <div class="logo" onclick="location.hash=''">ILLUSTRATOR</div>
         </header>
-
         <section id="banner-container" class="banner-container" style="display: none;"></section>
-
         <div class="layout-wrapper">
             <main id="content-container" class="main-content"></main>
-            
             <aside class="sidebar desktop-only">
+                <div class="widget">
+                    <h4 class="widget-title">Search</h4>
+                    <input type="search" id="search-input" class="search-input" placeholder="검색어를 입력하세요...">
+                </div>
                 <div class="profile-card">
                     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Profile Picture" id="profile-image-desktop">
                     <h3 id="profile-name-desktop">Loading...</h3>
@@ -31,13 +32,15 @@
                     <div id="profile-links-desktop" class="profile-links"></div>
                     <div id="profile-additional-info-desktop" class="profile-additional-info"></div>
                 </div>
+                <div id="recent-posts-widget-desktop" class="widget" style="display: none;">
+                    <h4 class="widget-title">Recently Viewed</h4>
+                    <ul id="recent-posts-list-desktop" class="recent-posts-list"></ul>
+                </div>
             </aside>
         </div>
-        
         <div id="load-more-container" class="load-more-container" style="display: none;">
             <button id="load-more-btn" class="load-more-btn">더 보기</button>
         </div>
-        
         <div id="mobile-profile-container" class="mobile-only">
             <div class="profile-card">
                 <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Profile Picture" id="profile-image-mobile">
@@ -45,6 +48,10 @@
                 <p id="profile-bio-mobile"></p>
                 <div id="profile-links-mobile" class="profile-links"></div>
                 <div id="profile-additional-info-mobile" class="profile-additional-info"></div>
+            </div>
+            <div id="recent-posts-widget-mobile" class="widget" style="display: none;">
+                <h4 class="widget-title">Recently Viewed</h4>
+                <ul id="recent-posts-list-mobile" class="recent-posts-list"></ul>
             </div>
         </div>
     </div>
