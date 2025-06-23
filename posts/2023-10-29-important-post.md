@@ -9,3 +9,5 @@ image: https://github.com/Tanat05/my-blog-posts/blob/main/images/446642241_11647
 ## 꼭 읽어주세요!
 
 이 블로그의 운영 원칙에 대한 내용입니다.
+
+![20250429_102937](https://github.com/user-attachments/assets/200607f8-ca4f-4d6d-a477-a9e66b6aa12e)
