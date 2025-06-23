@@ -8,7 +8,6 @@ const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
 const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 
-
 marked.setOptions({
   gfm: true,
   breaks: true,
@@ -30,6 +29,7 @@ const loadMoreBtn = document.getElementById('load-more-btn');
 let currentPage = 1;
 const postsPerPage = 9;
 const RECENT_POSTS_LIMIT = 5;
+let fuse;
 
 function parseFrontmatter(text) {
     const frontmatter = {};
@@ -149,7 +149,7 @@ async function fetchAllPosts() {
         const fileResponse = await fetch(file.download_url);
         const text = await fileResponse.text();
         const { frontmatter } = parseFrontmatter(text);
-        const title = formatTitleFromId(file.name);
+        const title = frontmatter.title || formatTitleFromId(file.name);
         return { id, title, pinned: frontmatter.pinned === 'true', choseongTitle: getChoseong(title), ...frontmatter };
     });
     
@@ -167,9 +167,8 @@ async function fetchSinglePost(postId) {
     if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
     const text = await response.text();
     const { frontmatter, content } = parseFrontmatter(text);
-    const title = formatTitleFromId(postId);
     const contentHtml = marked.parse(content);
-    return { title, contentHtml, frontmatter };
+    return { contentHtml, frontmatter };
 }
 
 async function loadProfileData() {
@@ -263,7 +262,12 @@ function renderPostList(posts, page = 1) {
 
 async function renderPost(postId) {
     try {
-        const { title, contentHtml, frontmatter } = await fetchSinglePost(postId);
+        const postDataFromList = window.allPosts.find(p => p.id === postId);
+        if (!postDataFromList) throw new Error("Post not found in list.");
+        
+        const { contentHtml, frontmatter } = await fetchSinglePost(postId);
+        const title = postDataFromList.title;
+
         addRecentPost({ id: postId, title: title });
         const postHtml = `
             <div class="post-detail-wrapper">
@@ -376,7 +380,7 @@ loadMoreBtn.addEventListener('click', () => {
     const query = searchInput.value.toLowerCase();
     const currentPosts = query ? window.allPosts.filter(post => 
         post.title.toLowerCase().includes(query) || 
-        post.choseongTitle.includes(query)
+        post.choseongTitle.includes(getChoseong(query))
     ) : window.allPosts;
     renderPostList(currentPosts, currentPage);
 });
@@ -384,9 +388,10 @@ loadMoreBtn.addEventListener('click', () => {
 searchInput.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     if (query) {
+        const choseongQuery = getChoseong(query);
         const filteredPosts = window.allPosts.filter(post => 
             post.title.toLowerCase().includes(query) || 
-            post.choseongTitle.includes(query)
+            post.choseongTitle.includes(choseongQuery)
         );
         renderPostList(filteredPosts, 1);
     } else {
