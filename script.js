@@ -1,16 +1,16 @@
 // =======================================================
 // 수정 필요 1: 깃허브 정보를 자신의 정보로 수정하세요.
 // =======================================================
-const GITHUB_USER = 'YOUR_GITHUB_USERNAME';
-const GITHUB_REPO = 'my-blog-posts'; // 글이 저장된 레포지토리
+const GITHUB_USER = 'Tanat05';
+const GITHUB_REPO = 'my-blog-posts'; 
 const POSTS_DIR = 'posts';
 
 // =======================================================
 // 수정 필요 2: Giscus 정보를 자신의 정보로 수정하세요.
 // =======================================================
-const GISCUS_REPO = '[YOUR_USERNAME]/[YOUR_WEBSITE_REPO]'; // 댓글이 저장될 레포지토리
-const GISCUS_REPO_ID = '[YOUR_REPO_ID]';
-const GISCUS_CATEGORY_ID = '[YOUR_CATEGORY_ID]';
+const GISCUS_REPO = 'Tanat05/my-blog-posts'; // 댓글이 저장될 레포지토리
+const GISCUS_REPO_ID = 'R_kgDOPAg55g';
+const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 // =======================================================
 
 
