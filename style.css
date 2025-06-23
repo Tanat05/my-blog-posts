@@ -214,12 +214,29 @@ body {
 .post-title-main {
     font-family: 'Poppins', sans-serif;
     font-size: 2.5rem;
-    margin: 0;
+    margin: 0 0 10px 0;
     color: var(--primary-text-color);
+}
+.post-meta {
+    font-size: 0.9rem;
+    color: var(--secondary-text-color);
+    margin-bottom: 20px;
+}
+.post-excerpt {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--border-color);
 }
 .post-body {
     color: var(--secondary-text-color);
     font-size: 16px;
+}
+.post-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 2em auto;
 }
 .post-body h1, .post-body h2, .post-body h3, .post-body h4, .post-body h5, .post-body h6 {
     font-family: 'Poppins', sans-serif;
@@ -315,6 +332,9 @@ body {
     cursor: not-allowed;
 }
 .widget {
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    padding: 25px;
     margin-bottom: 30px;
 }
 .search-widget {
