@@ -313,6 +313,51 @@ body {
     color: #555;
     cursor: not-allowed;
 }
+.widget {
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+.widget-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    color: var(--primary-text-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+}
+.search-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--primary-text-color);
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+}
+.recent-posts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.recent-posts-list li {
+    margin-bottom: 15px;
+}
+.recent-posts-list li:last-child {
+    margin-bottom: 0;
+}
+.recent-posts-list a {
+    text-decoration: none;
+    color: var(--secondary-text-color);
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+.recent-posts-list a:hover {
+    color: var(--accent-color);
+}
 @media (max-width: 992px) {
     .layout-wrapper {
         flex-direction: column;
