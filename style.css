@@ -1,7 +1,7 @@
 :root {
     --bg-image: none;
     --bg-gradient: linear-gradient(45deg, #121212, #181818);
-    --accent-color: #ffffff;
+    --accent-color: #58a6ff; /* GitHub 스타일의 파란색으로 변경 */
     --primary-text-color: #e0e0e0;
     --secondary-text-color: #a0a0a0;
     --font-family: 'Inter', sans-serif;
@@ -213,22 +213,76 @@ body {
 .post-title-main {
     font-family: 'Poppins', sans-serif;
     font-size: 2.5rem;
-    margin-top: 0;
-    color: var(--accent-color);
+    margin: 0;
+    color: var(--primary-text-color);
 }
 .post-body {
     color: var(--secondary-text-color);
+    font-size: 16px;
 }
-.post-body h2, .post-body h3 {
+
+/* --- 게시글 본문 마크다운 스타일 --- */
+.post-body h1, .post-body h2, .post-body h3, .post-body h4, .post-body h5, .post-body h6 {
     font-family: 'Poppins', sans-serif;
     color: var(--primary-text-color);
+    font-weight: 700;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    padding-bottom: 0.3em;
     border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
 }
+.post-body h1 { font-size: 2em; }
+.post-body h2 { font-size: 1.5em; }
+.post-body h3 { font-size: 1.25em; border-bottom: none; }
+.post-body h4 { font-size: 1em; border-bottom: none; }
+.post-body p { margin-bottom: 1em; }
 .post-body a {
     color: var(--accent-color);
+    text-decoration: none;
+}
+.post-body a:hover {
     text-decoration: underline;
 }
+.post-body blockquote {
+    border-left: 4px solid #30363d;
+    padding-left: 1em;
+    margin-left: 0;
+    color: #8b949e;
+}
+.post-body ul, .post-body ol {
+    padding-left: 2em;
+}
+.post-body code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: rgba(110,118,129,0.4);
+    padding: .2em .4em;
+    margin: 0;
+    font-size: 85%;
+    border-radius: 6px;
+}
+.post-body pre {
+    background-color: #161b22;
+    padding: 16px;
+    border-radius: 6px;
+    overflow: auto;
+    line-height: 1.45;
+}
+.post-body pre code {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    font-size: 100%;
+    border-radius: 0;
+}
+.post-body hr {
+    height: .25em;
+    padding: 0;
+    margin: 24px 0;
+    background-color: #30363d;
+    border: 0;
+}
+/* --- --- */
+
 #comments-section {
     margin-top: 50px;
 }
