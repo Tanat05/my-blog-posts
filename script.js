@@ -1,12 +1,12 @@
 import { getChoseong } from "https://unpkg.com/es-hangul/dist/index.mjs";
 
-const GITHUB_USER = 'YOUR_GITHUB_USERNAME';
+const GITHUB_USER = 'Tanat05';
 const GITHUB_REPO = 'my-blog-posts';
 const POSTS_DIR = 'posts';
 
-const GISCUS_REPO = '[YOUR_USERNAME]/[YOUR_WEBSITE_REPO]';
-const GISCUS_REPO_ID = '[YOUR_REPO_ID]';
-const GISCUS_CATEGORY_ID = '[YOUR_CATEGORY_ID]';
+const GISCUS_REPO = 'Tanat05/my-blog-posts';
+const GISCUS_REPO_ID = 'R_kgDOPAg55g';
+const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 
 marked.setOptions({
   gfm: true,
