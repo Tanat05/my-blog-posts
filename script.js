@@ -1,42 +1,53 @@
-// =======================================================
-// 수정 필요 1: 깃허브 정보를 자신의 정보로 수정하세요.
-// =======================================================
 const GITHUB_USER = 'Tanat05';
-const GITHUB_REPO = 'my-blog-posts'; 
+const GITHUB_REPO = 'my-blog-posts';
 const POSTS_DIR = 'posts';
 
-// =======================================================
-// 수정 필요 2: Giscus 정보를 자신의 정보로 수정하세요.
-// =======================================================
-const GISCUS_REPO = 'Tanat05/my-blog-posts'; // 댓글이 저장될 레포지토리
+const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
 const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
-// =======================================================
-
 
 const contentContainer = document.getElementById('content-container');
 
-// --- 유틸리티 함수 ---
 function parseFrontmatter(text) {
     const frontmatter = {};
     const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
     const match = frontmatterRegex.exec(text);
     let content = text;
-
     if (match) {
         const yaml = match[1];
         content = text.slice(match[0].length);
-        yaml.split('\n').forEach(line => {
-            const parts = line.split(':');
-            if (parts.length >= 2) {
-                const key = parts[0].trim();
-                const value = parts.slice(1).join(':').trim().replace(/^['"]|['"]$/g, '');
-                frontmatter[key] = value;
+        const lines = yaml.split('\n');
+        let currentKey = '';
+        let isList = false;
+        lines.forEach(line => {
+            const listMatch = line.match(/^\s*-\s*(\w+):\s*(.*)/);
+            if (listMatch) {
+                if (!isList) {
+                    currentKey = line.split(':')[0].trim();
+                    frontmatter[currentKey] = [];
+                    isList = true;
+                }
+                const subKey = listMatch[1];
+                const subValue = listMatch[2].trim().replace(/^['"]|['"]$/g, '');
+                if (frontmatter[currentKey].length === 0 || frontmatter[currentKey][frontmatter[currentKey].length - 1][subKey]) {
+                    frontmatter[currentKey].push({});
+                }
+                frontmatter[currentKey][frontmatter[currentKey].length - 1][subKey] = subValue;
+
+            } else {
+                isList = false;
+                const parts = line.split(':');
+                if (parts.length >= 2) {
+                    const key = parts[0].trim();
+                    const value = parts.slice(1).join(':').trim().replace(/^['"]|['"]$/g, '');
+                    frontmatter[key] = value;
+                }
             }
         });
     }
     return { frontmatter, content };
 }
+
 
 function formatTitleFromId(id) {
     const nameOnly = id.replace(/\.md$/, '');
@@ -44,7 +55,6 @@ function formatTitleFromId(id) {
     return titlePart.replace(/-+/g, ' ');
 }
 
-// --- 데이터 로딩 함수 ---
 async function fetchAllPosts() {
     const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
     const response = await fetch(apiUrl);
@@ -58,11 +68,16 @@ async function fetchAllPosts() {
         const text = await fileResponse.text();
         const { frontmatter } = parseFrontmatter(text);
         const title = formatTitleFromId(file.name);
-        return { id, title, ...frontmatter };
+        return { id, title, pinned: frontmatter.pinned === 'true', ...frontmatter };
     });
     
     const allPosts = await Promise.all(postPromises);
-    return allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    const sortByDate = (a, b) => new Date(b.date) - new Date(a.date);
+    const pinnedPosts = allPosts.filter(p => p.pinned).sort(sortByDate);
+    const regularPosts = allPosts.filter(p => !p.pinned).sort(sortByDate);
+    
+    return [...pinnedPosts, ...regularPosts];
 }
 
 async function fetchSinglePost(postId) {
@@ -90,19 +105,24 @@ async function loadProfileData() {
     }
 }
 
-
-// --- 렌더링 함수 ---
 function renderPostList(posts) {
     let gridHtml = '<div class="post-grid">';
     posts.forEach(post => {
+        const pinIconHtml = post.pinned ? '<div class="pin-icon">📌</div>' : '';
         gridHtml += `
             <div class="grid-item">
                 <a href="#${post.id}">
-                    <img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}">
-                    <div class="grid-item-overlay">
-                        <h3 class="grid-item-title">${post.title}</h3>
+                    <div class="grid-item-visual">
+                        ${pinIconHtml}
+                        <img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}">
+                        <div class="grid-item-overlay">
+                            <h3 class="grid-item-title">${post.title}</h3>
+                        </div>
                     </div>
                 </a>
+                <div class="grid-item-caption">
+                    <h3 class="grid-item-title">${post.title}</h3>
+                </div>
             </div>
         `;
     });
@@ -139,11 +159,21 @@ function renderProfile(data) {
     const imgEl = document.getElementById('profile-image');
     const nameEl = document.getElementById('profile-name');
     const bioEl = document.getElementById('profile-bio');
+    const linksEl = document.getElementById('profile-links');
+    const additionalInfoEl = document.getElementById('profile-additional-info');
 
     if (data) {
         imgEl.src = data.image || imgEl.src;
         nameEl.textContent = data.name || 'Your Name';
         bioEl.textContent = data.bio || 'Welcome to my blog.';
+        if (data.links && Array.isArray(data.links)) {
+            linksEl.innerHTML = data.links.map(link => 
+                `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.text}</a>`
+            ).join('');
+        }
+        if (data.additional_info) {
+            additionalInfoEl.textContent = data.additional_info;
+        }
     } else {
         nameEl.textContent = 'Profile Error';
         bioEl.textContent = 'Could not load profile.';
@@ -154,11 +184,9 @@ function loadGiscus(term) {
     const commentsContainer = document.getElementById('comments-section');
     if (!commentsContainer) return;
     
-    // 이전 Giscus 인스턴스 제거
     while (commentsContainer.firstChild) {
         commentsContainer.removeChild(commentsContainer.firstChild);
     }
-
     const giscusScript = document.createElement('script');
     giscusScript.src = 'https://giscus.app/client.js';
     giscusScript.setAttribute('data-repo', GISCUS_REPO);
@@ -175,18 +203,14 @@ function loadGiscus(term) {
     giscusScript.setAttribute('data-input-position', 'bottom');
     giscusScript.crossOrigin = 'anonymous';
     giscusScript.async = true;
-    
     commentsContainer.appendChild(giscusScript);
 }
 
-
-// --- 라우터 및 초기화 ---
 async function router() {
     contentContainer.innerHTML = '<div class="loading">Loading...</div>';
     const hash = location.hash.substring(1);
     const decodedHash = decodeURIComponent(hash);
 
-    // 포스트 목록이 없으면 먼저 가져오기
     if (!window.allPosts) {
         try {
             window.allPosts = await fetchAllPosts();
@@ -196,7 +220,6 @@ async function router() {
             return;
         }
     }
-
     if (window.allPosts.some(p => p.id === decodedHash)) {
         renderPost(decodedHash);
     } else {
@@ -204,15 +227,10 @@ async function router() {
     }
 }
 
-// 페이지가 처음 로드될 때 실행
 window.addEventListener('DOMContentLoaded', async () => {
-    // 프로필 데이터를 먼저 로드하고 렌더링
     const profileData = await loadProfileData();
     renderProfile(profileData);
-
-    // 그 다음, 페이지 경로에 맞는 콘텐츠 렌더링
     router();
 });
 
-// 해시(주소)가 변경될 때마다 실행
 window.addEventListener('hashchange', router);
