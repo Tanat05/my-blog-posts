@@ -12,39 +12,45 @@ function parseFrontmatter(text) {
     const frontmatter = {};
     const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
     const match = frontmatterRegex.exec(text);
-    let content = text;
-    if (match) {
-        const yaml = match[1];
-        content = text.slice(match[0].length);
-        const lines = yaml.split('\n');
-        let currentKey = '';
-        let isList = false;
-        lines.forEach(line => {
-            const listMatch = line.match(/^\s*-\s*(\w+):\s*(.*)/);
-            if (listMatch) {
-                if (!isList) {
-                    currentKey = line.split(':')[0].trim();
-                    frontmatter[currentKey] = [];
-                    isList = true;
-                }
-                const subKey = listMatch[1];
-                const subValue = listMatch[2].trim().replace(/^['"]|['"]$/g, '');
-                if (frontmatter[currentKey].length === 0 || frontmatter[currentKey][frontmatter[currentKey].length - 1][subKey]) {
-                    frontmatter[currentKey].push({});
-                }
-                frontmatter[currentKey][frontmatter[currentKey].length - 1][subKey] = subValue;
+    if (!match) return { frontmatter: {}, content: text };
 
-            } else {
-                isList = false;
-                const parts = line.split(':');
-                if (parts.length >= 2) {
-                    const key = parts[0].trim();
-                    const value = parts.slice(1).join(':').trim().replace(/^['"]|['"]$/g, '');
-                    frontmatter[key] = value;
+    const yaml = match[1];
+    const content = text.slice(match[0].length);
+    let currentListKey = null;
+
+    yaml.split('\n').forEach(line => {
+        if (line.trim() === '') return;
+
+        const isListItem = /^\s*-/.test(line);
+        
+        if (isListItem) {
+            if (!currentListKey) return;
+            const itemMatch = line.match(/^\s*-\s*(\w+):\s*(.*)/);
+            if (itemMatch) {
+                const subKey = itemMatch[1];
+                const subValue = itemMatch[2].trim().replace(/^['"]|['"]$/g, '');
+                
+                if (subKey === 'text') {
+                    frontmatter[currentListKey].push({ [subKey]: subValue });
+                } else if (subKey === 'url' && frontmatter[currentListKey].length > 0) {
+                    Object.assign(frontmatter[currentListKey][frontmatter[currentListKey].length - 1], { [subKey]: subValue });
                 }
             }
-        });
-    }
+        } else {
+            const parts = line.split(':');
+            const key = parts[0].trim();
+            const value = parts.slice(1).join(':').trim();
+
+            if (value) {
+                currentListKey = null;
+                frontmatter[key] = value.replace(/^['"]|['"]$/g, '');
+            } else {
+                currentListKey = key;
+                frontmatter[key] = [];
+            }
+        }
+    });
+
     return { frontmatter, content };
 }
 
@@ -112,17 +118,12 @@ function renderPostList(posts) {
         gridHtml += `
             <div class="grid-item">
                 <a href="#${post.id}">
-                    <div class="grid-item-visual">
-                        ${pinIconHtml}
-                        <img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}">
-                        <div class="grid-item-overlay">
-                            <h3 class="grid-item-title">${post.title}</h3>
-                        </div>
+                    ${pinIconHtml}
+                    <img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}">
+                    <div class="grid-item-overlay">
+                        <h3 class="grid-item-title">${post.title}</h3>
                     </div>
                 </a>
-                <div class="grid-item-caption">
-                    <h3 class="grid-item-title">${post.title}</h3>
-                </div>
             </div>
         `;
     });
