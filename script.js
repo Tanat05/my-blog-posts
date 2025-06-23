@@ -1,18 +1,6 @@
-const GITHUB_USER = 'Tanat05';
-const GITHUB_REPO = 'my-blog-posts';
-const POSTS_DIR = 'posts';
-
-const GISCUS_REPO = 'Tanat05/my-blog-posts';
-const GISCUS_REPO_ID = 'R_kgDOPAg55g';
-const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
-
-const contentContainer = document.getElementById('content-container');
-const bannerContainer = document.getElementById('banner-container');
-const mobileProfileContainer = document.getElementById('mobile-profile-container');
-
 marked.setOptions({
   gfm: true,
-  breaks: true, 
+  breaks: true,
   pedantic: false,
   smartLists: true,
   smartypants: false,
@@ -23,18 +11,18 @@ marked.setOptions({
 });
 
 const contentContainer = document.getElementById('content-container');
+const bannerContainer = document.getElementById('banner-container');
+const mobileProfileContainer = document.getElementById('mobile-profile-container');
 
 function parseFrontmatter(text) {
     const frontmatter = {};
     const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
     const match = frontmatterRegex.exec(text);
     if (!match) return { frontmatter: {}, content: text };
-
     const yaml = match[1];
     const content = text.slice(match[0].length);
     let currentListKey = null;
     let lastListItem = null;
-
     yaml.split('\n').forEach(line => {
         if (line.trim() === '') return;
         const indent = line.match(/^\s*/)[0].length;
