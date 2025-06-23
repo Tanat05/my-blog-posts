@@ -6,7 +6,7 @@ const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
 const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 
-const mainContentArea = document.getElementById('main-content-area');
+const contentContainer = document.getElementById('content-container');
 
 function parseFrontmatter(text) {
     const frontmatter = {};
@@ -20,7 +20,7 @@ function parseFrontmatter(text) {
     let lastListItem = null;
 
     yaml.split('\n').forEach(line => {
-        if (line.trim().startsWith('#') || line.trim() === '') return;
+        if (line.trim() === '') return;
 
         const indent = line.match(/^\s*/)[0].length;
 
@@ -51,14 +51,78 @@ function parseFrontmatter(text) {
             }
         }
     });
-
     return { frontmatter, content };
 }
+
 
 function formatTitleFromId(id) {
     const nameOnly = id.replace(/\.md$/, '');
     const titlePart = nameOnly.replace(/^\d{4}-\d{2}-\d{2}-/, '');
     return titlePart.replace(/-+/g, ' ');
+}
+
+function applyConfig(config) {
+    if (!config) return;
+    const root = document.documentElement;
+
+    if (config.background_image) {
+        root.style.setProperty('--bg-image', `url(${config.background_image})`);
+        root.style.setProperty('--bg-gradient', 'none');
+    } else if (config.background_gradient_start && config.background_gradient_end) {
+        root.style.setProperty('--bg-gradient', `linear-gradient(45deg, ${config.background_gradient_start}, ${config.background_gradient_end})`);
+        root.style.setProperty('--bg-image', 'none');
+    }
+
+    root.style.setProperty('--accent-color', config.accent_color || '#ffffff');
+    root.style.setProperty('--primary-text-color', config.primary_text_color || '#e0e0e0');
+    root.style.setProperty('--secondary-text-color', config.secondary_text_color || '#a0a0a0');
+
+    if (config.font_family) {
+        const fontName = config.font_family.split(',')[0].replace(/['"]/g, '').replace(/\s/g, '+');
+        const fontLink = document.getElementById('main-font');
+        if (fontLink && !fontLink.href.includes(fontName)) {
+           fontLink.href = `https://fonts.googleapis.com/css2?family=${fontName}:wght@400;500;700;900&display=swap`;
+        }
+        root.style.setProperty('--font-family', config.font_family);
+    }
+}
+
+function renderBanner(config) {
+    if (!config || (!config.banner_image && !config.banner_text)) {
+        return;
+    }
+    const bannerContainer = document.getElementById('banner-container');
+    bannerContainer.style.display = 'block';
+
+    if (config.banner_image) {
+        bannerContainer.style.backgroundImage = `url(${config.banner_image})`;
+    } else {
+        bannerContainer.style.backgroundColor = 'var(--surface-color)';
+    }
+
+    let bannerContent = '<div class="banner-content">';
+    if (config.banner_text) {
+        bannerContent += `<h1 class="banner-title">${config.banner_text}</h1>`;
+    }
+    if (config.banner_subtext) {
+        bannerContent += `<p class="banner-subtitle">${config.banner_subtext}</p>`;
+    }
+    bannerContent += '</div>';
+    bannerContainer.innerHTML = bannerContent;
+}
+
+async function loadConfigData() {
+    try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/config.md`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('config.md not found');
+        const text = await response.text();
+        const { frontmatter } = parseFrontmatter(text);
+        return frontmatter;
+    } catch (error) {
+        console.error("Failed to load config data:", error);
+        return null;
+    }
 }
 
 async function fetchAllPosts() {
@@ -128,7 +192,7 @@ function renderPostList(posts) {
         `;
     });
     gridHtml += '</div>';
-    mainContentArea.innerHTML = gridHtml;
+    contentContainer.innerHTML = gridHtml;
 }
 
 async function renderPost(postId) {
@@ -148,11 +212,11 @@ async function renderPost(postId) {
             </div>
             <section id="comments-section"></section>
         `;
-        mainContentArea.innerHTML = postHtml;
+        contentContainer.innerHTML = postHtml;
         loadGiscus(postId);
     } catch (error) {
         console.error('Failed to load post:', error);
-        mainContentArea.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
+        contentContainer.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
     }
 }
 
@@ -178,44 +242,6 @@ function renderProfile(data) {
     } else {
         nameEl.textContent = 'Profile Error';
         bioEl.textContent = 'Could not load profile.';
-    }
-}
-
-function applyCustomization(data) {
-    if (!data) return;
-
-    if (data.theme_colors) {
-        const styleEl = document.getElementById('custom-theme-style');
-        let cssText = ':root {';
-        for (const [key, value] of Object.entries(data.theme_colors)) {
-            cssText += `${key}: ${value}; `;
-        }
-        cssText += '}';
-        styleEl.textContent = cssText;
-    }
-
-    if (data.google_fonts_url) {
-        const fontEl = document.getElementById('custom-google-font');
-        fontEl.href = data.google_fonts_url;
-    }
-
-    const bannerContainer = document.getElementById('header-banner-container');
-    if (data.header_banner) {
-        const banner = data.header_banner;
-        let bannerHtml = '';
-        
-        const contentHtml = banner.image 
-            ? `<img src="${banner.image}" alt="Header Banner">`
-            : `<div class="header-banner-text">${banner.text}</div>`;
-        
-        if (banner.url) {
-            bannerHtml = `<div class="header-banner"><a href="${banner.url}" target="_blank" rel="noopener noreferrer">${contentHtml}</a></div>`;
-        } else {
-            bannerHtml = `<div class="header-banner">${contentHtml}</div>`;
-        }
-        bannerContainer.innerHTML = bannerHtml;
-    } else {
-        bannerContainer.innerHTML = '';
     }
 }
 
@@ -246,7 +272,7 @@ function loadGiscus(term) {
 }
 
 async function router() {
-    mainContentArea.innerHTML = '<div class="loading">Loading...</div>';
+    contentContainer.innerHTML = '<div class="loading">Loading...</div>';
     const hash = location.hash.substring(1);
     const decodedHash = decodeURIComponent(hash);
 
@@ -255,7 +281,7 @@ async function router() {
             window.allPosts = await fetchAllPosts();
         } catch (error) {
             console.error('Failed to pre-fetch posts:', error);
-            mainContentArea.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
+            contentContainer.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
             return;
         }
     }
@@ -267,8 +293,13 @@ async function router() {
 }
 
 window.addEventListener('DOMContentLoaded', async () => {
-    const profileData = await loadProfileData();
-    applyCustomization(profileData);
+    const [configData, profileData] = await Promise.all([
+        loadConfigData(),
+        loadProfileData()
+    ]);
+
+    applyConfig(configData);
+    renderBanner(configData);
     renderProfile(profileData);
     router();
 });
