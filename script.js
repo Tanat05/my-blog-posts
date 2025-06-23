@@ -53,7 +53,6 @@ function parseFrontmatter(text) {
     return { frontmatter, content };
 }
 
-
 function formatTitleFromId(id) {
     const nameOnly = id.replace(/\.md$/, '');
     const titlePart = nameOnly.replace(/^\d{4}-\d{2}-\d{2}-/, '');
@@ -169,6 +168,7 @@ async function loadProfileData() {
 }
 
 function renderPostList(posts) {
+    mobileProfileContainer.style.display = 'none';
     let gridHtml = '<div class="post-grid">';
     posts.forEach(post => {
         const pinIconHtml = post.pinned ? '<div class="pin-icon">📌</div>' : '';
@@ -206,7 +206,14 @@ async function renderPost(postId) {
             <section id="comments-section"></section>
         `;
         contentContainer.innerHTML = postHtml;
-        contentContainer.appendChild(mobileProfileContainer);
+
+        const commentsSection = document.getElementById('comments-section');
+        if (commentsSection) {
+            contentContainer.insertBefore(mobileProfileContainer, commentsSection);
+        } else {
+            contentContainer.appendChild(mobileProfileContainer);
+        }
+        
         loadGiscus(postId);
     } catch (error) {
         console.error('Failed to load post:', error);
@@ -223,7 +230,7 @@ function renderProfile(data) {
         const linksEl = document.getElementById(`profile-links-${type}`);
         const additionalInfoEl = document.getElementById(`profile-additional-info-${type}`);
 
-        if (data) {
+        if (data && imgEl) {
             imgEl.src = data.image || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
             nameEl.textContent = data.name || 'Your Name';
             bioEl.textContent = data.bio || 'Welcome to my blog.';
@@ -235,7 +242,7 @@ function renderProfile(data) {
                 linksEl.innerHTML = '';
             }
             additionalInfoEl.textContent = data.additional_info || '';
-        } else {
+        } else if (nameEl) {
             nameEl.textContent = 'Profile Error';
             bioEl.textContent = 'Could not load profile.';
         }
