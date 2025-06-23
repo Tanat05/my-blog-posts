@@ -1,6 +1,6 @@
-1.  **최초 설정**: 깃허브 레포지토리 생성부터 코드 설정까지, 딱 한 번만 하면 되는 과정입니다.
-2.  **콘텐츠 관리**: 새 글을 쓰거나 프로필을 수정하는 등, 블로그를 운영하며 계속하게 될 작업입니다.
-3.  **커스터마이징 가이드**: `config.md` 파일을 통해 블로그의 디자인을 마음대로 바꾸는 방법입니다.
+1.  **[최초 설정](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-1-%EC%B5%9C%EC%B4%88-%EC%84%A4%EC%A0%95)**: 깃허브 레포지토리 생성부터 코드 설정까지, 딱 한 번만 하면 되는 과정입니다.
+2.  **[콘텐츠 관리](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-2-%EC%BD%98%ED%85%90%EC%B8%A0-%EA%B4%80%EB%A6%AC-%EC%9D%BC%EC%83%81%EC%A0%81%EC%9D%B8-%EC%9E%91%EC%97%85)**: 새 글을 쓰거나 프로필을 수정하는 등, 블로그를 운영하며 계속하게 될 작업입니다.
+3.  **[커스터마이징 가이드](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-3-%EC%BB%A4%EC%8A%A4%ED%84%B0%EB%A7%88%EC%9D%B4%EC%A7%95-%EA%B0%80%EC%9D%B4%EB%93%9C-%EB%B8%94%EB%A1%9C%EA%B7%B8-%EA%BE%B8%EB%AF%B8%EA%B8%B0)**: `config.md` 파일을 통해 블로그의 디자인을 마음대로 바꾸는 방법입니다.
 
 ---
 
