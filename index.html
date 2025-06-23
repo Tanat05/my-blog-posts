@@ -84,12 +84,15 @@
             border-radius: 50%;
             display: block;
             margin: 0 auto 20px;
+            object-fit: cover;
         }
         .about-me p { text-align: center; font-size: 14px; margin: 0; }
         
         /* Post Item Styles */
         .post-item { margin-bottom: 50px; }
-        .post-thumbnail img { display: block; }
+        .post-thumbnail img { display: block; width: 100%; object-fit: cover; }
+        .featured-post .post-thumbnail img { height: 450px; }
+        .grid-post .post-thumbnail img { height: 250px; }
         .post-details { padding: 30px 0; text-align: center; }
         .post-category {
             font-family: 'Lato', sans-serif;
@@ -127,15 +130,15 @@
 
         /* Post Detail View */
         .post-detail-content {
-            padding: 20px;
-            border: 1px solid var(--border-color);
+            padding: 20px 0;
         }
         .post-detail-content h1, .post-detail-content h2 { border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 20px; }
         .post-detail-content pre { background: #f7f7f7; padding: 15px; border-radius: 4px; overflow-x: auto; }
-        #back-to-list { display: inline-block; margin-bottom: 20px; font-weight: bold; }
+        #back-to-list { display: inline-block; margin: 30px 0; font-weight: bold; }
 
         /* Giscus Comments */
         #comments-section { margin-top: 50px; }
+        .loading { padding: 50px; text-align: center; font-size: 1.2rem; }
 
         @media (max-width: 992px) {
             .layout-wrapper { flex-direction: column; }
@@ -153,24 +156,20 @@
             <div class="logo">
                 <h1 onclick="location.hash=''">gwen</h1>
             </div>
-            <!-- 네비게이션 메뉴를 추가할 수 있습니다. -->
         </header>
 
         <div class="layout-wrapper">
-            <main id="content-container" class="main-content">
-                <!-- 동적 콘텐츠가 여기에 로드됩니다 -->
-            </main>
-
+            <main id="content-container" class="main-content"></main>
             <aside class="sidebar">
                 <!-- ============================================== -->
                 <!-- 수정 필요 1: 사이드바 프로필 정보를 수정하세요. -->
                 <!-- ============================================== -->
                 <div class="widget about-me">
                     <h4 class="widget-title">About Me</h4>
-                    <img src="https://via.placeholder.com/100" alt="Profile Picture">
-                    <p>Vivamus dapibus lacus eu purus feugiat, at euismod nisl tincidunt. Sed ac posuere orci. In finibus, justo quis lobortis.</p>
+                    <!-- 실제 이미지 URL로 변경하세요. 예: 자신의 깃허브 프로필 사진 -->
+                    <img src="https://avatars.githubusercontent.com/u/9919?s=200" alt="Profile Picture">
+                    <p>이곳에 자기소개를 작성합니다. 깃허브 레포지토리를 이용한 블로그를 만들고 있습니다.</p>
                 </div>
-                <!-- 다른 위젯(카테고리 등)을 여기에 추가할 수 있습니다. -->
             </aside>
         </div>
     </div>
@@ -179,14 +178,34 @@
         // =======================================================
         // 수정 필요 2: 깃허브 글 저장소 정보를 수정하세요.
         // =======================================================
-        const GITHUB_USER = 'Tanat05';
+        const GITHUB_USER = 'YOUR_GITHUB_USERNAME';
         const GITHUB_REPO = 'my-blog-posts';
         const POSTS_DIR = 'posts';
         // =======================================================
 
         const contentContainer = document.getElementById('content-container');
+        
+        // 오류 수정을 위해 함수를 한번만 제대로 선언합니다.
+        function parseFrontmatter(text) {
+            const frontmatter = {};
+            const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+            const match = frontmatterRegex.exec(text);
+            let content = text;
 
-        const parseFrontmatter = (text) => { /* ... 이전과 동일 ... */ };
+            if (match) {
+                const yaml = match[1];
+                content = text.slice(match[0].length);
+                yaml.split('\n').forEach(line => {
+                    const parts = line.split(':');
+                    if (parts.length >= 2) {
+                        const key = parts[0].trim();
+                        const value = parts.slice(1).join(':').trim().replace(/^['"]|['"]$/g, '');
+                        frontmatter[key] = value;
+                    }
+                });
+            }
+            return { frontmatter, content };
+        }
 
         async function renderPostList() {
             contentContainer.innerHTML = '<div class="loading">Loading posts...</div>';
@@ -194,8 +213,11 @@
                 const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
                 const response = await fetch(apiUrl);
                 if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+                
                 const files = await response.json();
-                if (!Array.isArray(files)) throw new Error("Folder not found or empty.");
+                if (!Array.isArray(files)) {
+                    throw new Error("Folder not found or is empty. Check your GITHUB_REPO and POSTS_DIR settings.");
+                }
 
                 const postPromises = files
                     .filter(file => file.name.endsWith('.md'))
@@ -208,28 +230,18 @@
 
                 const allPosts = await Promise.all(postPromises);
                 const sortedPosts = allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                const pinnedPosts = sortedPosts.filter(p => p.pinned);
-                const regularPosts = sortedPosts.filter(p => !p.pinned);
-
-                const finalSortedPosts = [...pinnedPosts, ...regularPosts];
-
-                if (finalSortedPosts.length === 0) {
+                
+                if (sortedPosts.length === 0) {
                     contentContainer.innerHTML = '<h3>No posts found.</h3>';
                     return;
                 }
                 
-                let featuredPostHtml = '';
+                let featuredPostHtml = createPostHtml(sortedPosts[0], true);
                 let gridPostsHtml = '';
 
-                // 첫 번째 글은 Featured 스타일로
-                const featuredPost = finalSortedPosts[0];
-                featuredPostHtml = createPostHtml(featuredPost, true);
-
-                // 나머지 글들은 Grid 스타일로
-                const gridPosts = finalSortedPosts.slice(1);
-                if (gridPosts.length > 0) {
+                if (sortedPosts.length > 1) {
                     gridPostsHtml = '<div class="post-grid">';
-                    gridPosts.forEach(post => {
+                    sortedPosts.slice(1).forEach(post => {
                         gridPostsHtml += createPostHtml(post, false);
                     });
                     gridPostsHtml += '</div>';
@@ -244,10 +256,10 @@
         }
 
         function createPostHtml(post, isFeatured) {
-            const imageUrl = post.image || 'https://via.placeholder.com/800x500'; // Frontmatter에 image: URL 추가
-            const postClass = isFeatured ? 'post-item' : 'post-item'; // 클래스 동일하게 유지하거나 다르게
+            const imageUrl = post.image || `https://source.unsplash.com/random/800x${isFeatured ? 500 : 400}?sig=${post.id}`;
+            const postClass = isFeatured ? 'featured-post' : 'grid-post';
             return `
-                <article class="${postClass}">
+                <article class="post-item ${postClass}">
                     <div class="post-thumbnail">
                         <a href="#${post.id}"><img src="${imageUrl}" alt="${post.title || ''}"></a>
                     </div>
@@ -255,7 +267,7 @@
                         <div class="post-category">${post.tags ? post.tags.split(',')[0] : 'Uncategorized'}</div>
                         <h2 class="post-title"><a href="#${post.id}">${post.title || 'Untitled'}</a></h2>
                         <div class="post-meta">BY ${post.author || 'Admin'} / ${post.date || ''}</div>
-                        <div class="post-excerpt">${post.excerpt || ''}</div>
+                        ${isFeatured ? `<div class="post-excerpt">${post.excerpt || ''}</div>` : ''}
                         <a href="#${post.id}" class="btn-readmore">Read More</a>
                     </div>
                 </article>
@@ -271,29 +283,29 @@
                 const text = await response.text();
                 const { frontmatter, content } = parseFrontmatter(text);
                 const contentHtml = marked.parse(content);
-                const imageUrl = frontmatter.image || 'https://via.placeholder.com/800x500';
+                const imageUrl = frontmatter.image || `https://source.unsplash.com/random/800x500?sig=${postId}`;
 
                 const postHtml = `
                     <article>
                         <div class="post-thumbnail"><img src="${imageUrl}" alt="${frontmatter.title || ''}"></div>
                         <div class="post-details">
-                            <div class="post-category">${frontmatter.tags ? frontmatter.tags.split(',')[0] : 'Uncategorized'}</div>
                             <h1 class="post-title">${frontmatter.title || 'Untitled'}</h1>
                             <div class="post-meta">BY ${frontmatter.author || 'Admin'} / ${frontmatter.date || ''}</div>
                         </div>
                         <div class="post-detail-content">${contentHtml}</div>
                     </article>
+                    <a href="#" id="back-to-list">← Back to all posts</a>
                     <section id="comments-section"></section>
                 `;
                 contentContainer.innerHTML = postHtml;
-                loadGiscus(postId); // postId를 전달!
+                loadGiscus(postId);
             } catch (error) {
                 console.error('Failed to load post:', error);
                 contentContainer.innerHTML = `<h3>Failed to load post: ${error.message}</h3>`;
             }
         }
 
-        function loadGiscus(term) { // postId를 term으로 받음
+        function loadGiscus(term) {
             const commentsContainer = document.getElementById('comments-section');
             if (!commentsContainer) return;
             while (commentsContainer.firstChild) {
@@ -304,7 +316,6 @@
 
             // =======================================================
             // 수정 필요 3: Giscus 정보를 자신의 정보로 수정하세요.
-            // 댓글 시스템의 핵심!
             // =======================================================
             giscusScript.setAttribute('data-repo', 'Tanat05/my-blog-posts'); // 예: 'Dev-John/my-awesome-blog'
             giscusScript.setAttribute('data-repo-id', 'R_kgDOPAg55g');
@@ -312,15 +323,13 @@
             giscusScript.setAttribute('data-category-id', 'DIC_kwDOPAg55s4Cr42K');
             // =======================================================
 
-            // === 댓글 매핑 전략 수정 ===
-            giscusScript.setAttribute('data-mapping', 'specific'); // 'pathname' -> 'specific'
-            giscusScript.setAttribute('data-term', term); // 각 포스트의 고유 ID를 term으로 사용
-
+            giscusScript.setAttribute('data-mapping', 'specific');
+            giscusScript.setAttribute('data-term', term);
             giscusScript.setAttribute('data-strict', '0');
             giscusScript.setAttribute('data-reactions-enabled', '1');
             giscusScript.setAttribute('data-emit-metadata', '0');
             giscusScript.setAttribute('data-input-position', 'bottom');
-            giscusScript.setAttribute('data-theme', 'light'); // 테마를 light로 변경
+            giscusScript.setAttribute('data-theme', 'light');
             giscusScript.setAttribute('data-lang', 'ko');
             giscusScript.crossOrigin = 'anonymous';
             giscusScript.async = true;
@@ -338,10 +347,6 @@
 
         window.addEventListener('DOMContentLoaded', router);
         window.addEventListener('hashchange', router);
-        // parseFrontmatter 구현은 이전과 동일하게 유지
-        const pfm = (text) => {const fm={},r=/^---\s*([\s\S]*?)\s*---/,m=r.exec(text);let c=text;if(m){const y=m[1];c=text.slice(m[0].length);y.split('\n').forEach(l=>{const p=l.split(':');if(p.length>=2){const k=p[0].trim(),v=p.slice(1).join(':').trim().replace(/^['"]|['"]$/g,'');fm[k]=v}})}return{frontmatter:fm,content:c}};
-        parseFrontmatter = pfm;
-
     </script>
 </body>
 </html>
