@@ -8,7 +8,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Inter:wght@400;500&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -29,7 +29,7 @@
             line-height: 1.7;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px; /* 전체 너비를 약간 넓힘 */
             margin: 0 auto;
             padding: 40px;
         }
@@ -37,29 +37,28 @@
         /* Header */
         .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
         .logo { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 700; cursor: pointer; }
-        /* ... 기타 헤더 스타일은 이전과 동일 ... */
 
-        /* === 레이아웃 수정 === */
+        /* === 레이아웃 === */
         .layout-wrapper {
             display: flex;
             align-items: flex-start;
             gap: 40px;
         }
         .main-content {
-            flex: 1; /* 남은 공간 모두 차지 */
+            flex: 1;
             min-width: 0;
         }
         .sidebar {
             width: 280px;
             flex-shrink: 0;
-            position: sticky; /* 스크롤 따라다니는 효과 */
-            top: 40px; /* 상단에서 40px 떨어진 위치에 고정 */
+            position: sticky;
+            top: 40px;
         }
         
         /* === 사이드바 프로필 카드 === */
         .profile-card {
             background-color: var(--surface-color);
-            border-radius: 8px;
+            border-radius: 12px;
             padding: 30px;
             text-align: center;
         }
@@ -83,24 +82,58 @@
             margin: 0;
         }
 
-        /* Post List (Image Grid) */
-        .post-grid { /* ... 이전과 동일 ... */ }
-        .grid-item { /* ... 이전과 동일 ... */ }
-        
-        /* Post Detail View */
-        .post-detail-wrapper {
+        /* === 포스트 목록 (이미지 그리드) - 수정됨 === */
+        .post-grid {
+            display: grid;
+            /* 화면 너비에 따라 자동으로 1~3개로 조절 */
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .grid-item {
             position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            background-color: var(--surface-color);
+            aspect-ratio: 3 / 4; /* 이미지 비율 고정 */
+        }
+        .grid-item a { display: block; width: 100%; height: 100%; }
+        .grid-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .grid-item:hover img { transform: scale(1.05); }
+        .grid-item-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
             padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: #fff;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+        .grid-item:hover .grid-item-overlay { opacity: 1; transform: translateY(0); }
+        .grid-item-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        /* === 포스트 상세 페이지 === */
+        .post-detail-wrapper {
             background-color: var(--surface-color);
             border-radius: 8px;
+            overflow: hidden;
         }
-        /* 워터마크는 새 레이아웃에서 방해가 될 수 있어 일단 비활성화 (필요하면 주석 해제) */
-        /* .post-detail-wrapper::before { ... } */
-        .post-info { padding-right: 0; }
-        .post-visual { margin-bottom: 30px; }
-        .post-visual img { width: 100%; max-height: 500px; object-fit: cover; border-radius: 4px; }
-        .post-title-main { font-size: 2.5rem; }
-        /* ... 기타 상세 페이지 스타일 ... */
+        .post-visual img { width: 100%; max-height: 60vh; object-fit: cover; }
+        .post-info { padding: 40px; }
+        .post-title-main { font-family: 'Poppins', sans-serif; font-size: 2.5rem; margin-top: 0; }
+        .post-body { color: var(--secondary-text-color); }
         
         #comments-section { margin-top: 50px; }
         .loading { padding: 50px; text-align: center; }
@@ -115,7 +148,6 @@
     <div class="container" id="page-container">
         <header class="main-header">
             <div class="logo" onclick="location.hash=''">ILLUSTRATOR</div>
-            <!-- ... nav ... -->
         </header>
 
         <div class="layout-wrapper">
@@ -145,25 +177,32 @@
 
         const contentContainer = document.getElementById('content-container');
         
+        // --- 유틸리티 함수 (이전과 동일) ---
         function formatTitleFromId(id) {
-            // .md 확장자 제거
             const nameOnly = id.replace(/\.md$/, '');
-            // YYYY-MM-DD- 형식의 날짜 제거 (있을 경우)
             const titlePart = nameOnly.replace(/^\d{4}-\d{2}-\d{2}-/, '');
-            // 하이픈(-)을 공백으로 바꾸기 (단, 연속된 하이픈은 하나로)
             return titlePart.replace(/-+/g, ' ');
         }
-        
-        async function fetchAllPosts() {
-            // ... 이전과 동일 ...
-        }
-        
-        async function fetchSinglePost(postId) {
-            // ... 이전과 동일, 단 제목 생성 로직은 id를 사용
-        }
+        async function fetchAllPosts() { /* 이전과 동일 */ }
+        async function fetchSinglePost(postId) { /* 이전과 동일 */ }
 
+        // --- 렌더링 함수 ---
         async function renderPostList(posts) {
-            // ... 이전과 동일 ...
+            let gridHtml = '<div class="post-grid">';
+            posts.forEach(post => {
+                gridHtml += `
+                    <div class="grid-item">
+                        <a href="#${post.id}">
+                            <img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}">
+                            <div class="grid-item-overlay">
+                                <h3 class="grid-item-title">${post.title}</h3>
+                            </div>
+                        </a>
+                    </div>
+                `;
+            });
+            gridHtml += '</div>';
+            contentContainer.innerHTML = gridHtml;
         }
 
         async function renderPost(postId) {
@@ -177,14 +216,9 @@
                         </div>
                         <div class="post-info">
                             <h1 class="post-title-main">${title}</h1>
-                            <p class="post-subtitle">${frontmatter.excerpt || ''}</p>
+                            <p>${frontmatter.excerpt || ''}</p>
+                            <hr style="border-color: ${getComputedStyle(document.documentElement).getPropertyValue('--border-color')}; margin: 30px 0;">
                             <div class="post-body">${contentHtml}</div>
-                            <div class="post-signature">${frontmatter.author || 'Illustrator'}</div>
-                             <div class="post-actions">
-                                <!-- 수정 필요 3: 포트폴리오나 소셜 링크로 연결하세요 -->
-                                <a href="#" target="_blank">Portfolio</a>
-                                <a href="#" target="_blank">Contact</a>
-                            </div>
                         </div>
                     </div>
                     <section id="comments-section"></section>
@@ -198,14 +232,12 @@
             }
         }
         
-        function loadGiscus(term) { /* ... 이전과 동일 ... */ }
+        function loadGiscus(term) { /* 이전과 동일 */ }
 
-        // === 라우터 및 초기화 (핵심 수정!) ===
+        // --- 라우터 및 초기화 (이전과 동일) ---
         async function router() {
             contentContainer.innerHTML = '<div class="loading">Loading...</div>';
             const hash = location.hash.substring(1);
-            
-            // === 한글 파일명 문제 해결을 위한 디코딩 ===
             const decodedHash = decodeURIComponent(hash);
 
             if (!window.allPosts) {
@@ -217,7 +249,6 @@
                 }
             }
 
-            // 디코딩된 해시값으로 포스트가 있는지 확인
             if (window.allPosts.some(p => p.id === decodedHash)) {
                 renderPost(decodedHash);
             } else {
@@ -235,7 +266,7 @@
             const giscusScript = document.createElement('script');
             giscusScript.src = 'https://giscus.app/client.js';
             // =======================================================
-            // 수정 필요 4: Giscus 정보를 자신의 정보로 수정하세요.
+            // 수정 필요 3: Giscus 정보를 자신의 정보로 수정하세요.
             // =======================================================
             giscusScript.setAttribute('data-repo', 'Tanat05/my-blog-posts');
             giscusScript.setAttribute('data-repo-id', 'R_kgDOPAg55g');
@@ -279,15 +310,6 @@
             return { title, contentHtml, frontmatter };
         }
         fetchSinglePost = fsp;
-        async function rpl(posts) {
-            let gridHtml = '<div class="post-grid">';
-            posts.forEach(post => {
-                gridHtml += `<div class="grid-item"><a href="#${post.id}"><img src="${post.image || `https://source.unsplash.com/random/600x800?sig=${post.id}`}" alt="${post.title}"><div class="grid-item-overlay"><div class="grid-item-title">${post.title}</div></div></a></div>`;
-            });
-            gridHtml += '</div>';
-            contentContainer.innerHTML = gridHtml;
-        }
-        renderPostList = rpl;
         
         window.addEventListener('DOMContentLoaded', router);
         window.addEventListener('hashchange', router);
