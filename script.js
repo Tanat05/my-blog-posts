@@ -10,6 +10,20 @@ const contentContainer = document.getElementById('content-container');
 const bannerContainer = document.getElementById('banner-container');
 const mobileProfileContainer = document.getElementById('mobile-profile-container');
 
+marked.setOptions({
+  gfm: true,
+  breaks: true, 
+  pedantic: false,
+  smartLists: true,
+  smartypants: false,
+  highlight: function(code, lang) {
+    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+    return hljs.highlight(code, { language }).value;
+  }
+});
+
+const contentContainer = document.getElementById('content-container');
+
 function parseFrontmatter(text) {
     const frontmatter = {};
     const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
