@@ -1,7 +1,7 @@
 :root {
     --bg-image: none;
     --bg-gradient: linear-gradient(45deg, #121212, #181818);
-    --accent-color: #58a6ff; /* GitHub 스타일의 파란색으로 변경 */
+    --accent-color: #58a6ff;
     --primary-text-color: #e0e0e0;
     --secondary-text-color: #a0a0a0;
     --font-family: 'Inter', sans-serif;
@@ -220,8 +220,6 @@ body {
     color: var(--secondary-text-color);
     font-size: 16px;
 }
-
-/* --- 게시글 본문 마크다운 스타일 --- */
 .post-body h1, .post-body h2, .post-body h3, .post-body h4, .post-body h5, .post-body h6 {
     font-family: 'Poppins', sans-serif;
     color: var(--primary-text-color);
@@ -261,7 +259,7 @@ body {
     border-radius: 6px;
 }
 .post-body pre {
-    background-color: #161b22;
+    background-color: #0d1117;
     padding: 16px;
     border-radius: 6px;
     overflow: auto;
@@ -281,8 +279,6 @@ body {
     background-color: #30363d;
     border: 0;
 }
-/* --- --- */
-
 #comments-section {
     margin-top: 50px;
 }
@@ -292,6 +288,30 @@ body {
 .loading {
     padding: 50px;
     text-align: center;
+}
+.load-more-container {
+    text-align: center;
+    margin-top: 40px;
+}
+.load-more-btn {
+    background-color: var(--surface-color);
+    color: var(--primary-text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px 30px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.load-more-btn:hover {
+    background-color: #333;
+}
+.load-more-btn:disabled {
+    background-color: #222;
+    color: #555;
+    cursor: not-allowed;
 }
 @media (max-width: 992px) {
     .layout-wrapper {
