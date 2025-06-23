@@ -7,22 +7,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link id="main-font" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.0.1">
+    <link rel="stylesheet" href="style.css?v=1.0.2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header class="main-header">
             <div class="logo" onclick="location.hash=''">ILLUSTRATOR</div>
         </header>
-
         <section id="banner-container" class="banner-container" style="display: none;"></section>
-
         <div class="layout-wrapper">
-            <main id="content-container" class="main-content">
-                <!-- 메인 콘텐츠가 여기에 렌더링됩니다. -->
-            </main>
-            
+            <main id="content-container" class="main-content"></main>
             <aside class="sidebar desktop-only">
                 <div class="profile-card">
                     <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Profile Picture" id="profile-image-desktop">
@@ -33,7 +30,6 @@
                 </div>
             </aside>
         </div>
-        
         <div id="mobile-profile-container" class="mobile-only">
             <div class="profile-card">
                 <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Profile Picture" id="profile-image-mobile">
@@ -44,6 +40,6 @@
             </div>
         </div>
     </div>
-    <script src="script.js?v=1.0.1" defer></script>
+    <script src="script.js?v=1.0.2"></script>
 </body>
 </html>
