@@ -1,12 +1,14 @@
-const GITHUB_USER = 'Tanat05';
+const GITHUB_USER = 'YOUR_GITHUB_USERNAME';
 const GITHUB_REPO = 'my-blog-posts';
 const POSTS_DIR = 'posts';
 
-const GISCUS_REPO = 'Tanat05/my-blog-posts';
-const GISCUS_REPO_ID = 'R_kgDOPAg55g';
-const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
+const GISCUS_REPO = '[YOUR_USERNAME]/[YOUR_WEBSITE_REPO]';
+const GISCUS_REPO_ID = '[YOUR_REPO_ID]';
+const GISCUS_CATEGORY_ID = '[YOUR_CATEGORY_ID]';
 
 const contentContainer = document.getElementById('content-container');
+const bannerContainer = document.getElementById('banner-container');
+const mobileProfileContainer = document.getElementById('mobile-profile-container');
 
 function parseFrontmatter(text) {
     const frontmatter = {};
@@ -21,15 +23,12 @@ function parseFrontmatter(text) {
 
     yaml.split('\n').forEach(line => {
         if (line.trim() === '') return;
-
         const indent = line.match(/^\s*/)[0].length;
-
         if (indent === 0) {
             currentListKey = null;
             const parts = line.split(':');
             const key = parts[0].trim();
             const value = parts.slice(1).join(':').trim();
-
             if (value) {
                 frontmatter[key] = value.replace(/^['"]|['"]$/g, '');
             } else {
@@ -64,7 +63,6 @@ function formatTitleFromId(id) {
 function applyConfig(config) {
     if (!config) return;
     const root = document.documentElement;
-
     if (config.background_image) {
         root.style.setProperty('--bg-image', `url(${config.background_image})`);
         root.style.setProperty('--bg-gradient', 'none');
@@ -72,11 +70,9 @@ function applyConfig(config) {
         root.style.setProperty('--bg-gradient', `linear-gradient(45deg, ${config.background_gradient_start}, ${config.background_gradient_end})`);
         root.style.setProperty('--bg-image', 'none');
     }
-
     root.style.setProperty('--accent-color', config.accent_color || '#ffffff');
     root.style.setProperty('--primary-text-color', config.primary_text_color || '#e0e0e0');
     root.style.setProperty('--secondary-text-color', config.secondary_text_color || '#a0a0a0');
-
     if (config.font_family) {
         const fontName = config.font_family.split(',')[0].replace(/['"]/g, '').replace(/\s/g, '+');
         const fontLink = document.getElementById('main-font');
@@ -89,17 +85,15 @@ function applyConfig(config) {
 
 function renderBanner(config) {
     if (!config || (!config.banner_image && !config.banner_text)) {
+        bannerContainer.style.display = 'none';
         return;
     }
-    const bannerContainer = document.getElementById('banner-container');
     bannerContainer.style.display = 'block';
-
     if (config.banner_image) {
         bannerContainer.style.backgroundImage = `url(${config.banner_image})`;
     } else {
         bannerContainer.style.backgroundColor = 'var(--surface-color)';
     }
-
     let bannerContent = '<div class="banner-content">';
     if (config.banner_text) {
         bannerContent += `<h1 class="banner-title">${config.banner_text}</h1>`;
@@ -142,7 +136,6 @@ async function fetchAllPosts() {
     });
     
     const allPosts = await Promise.all(postPromises);
-    
     const sortByDate = (a, b) => new Date(b.date) - new Date(a.date);
     const pinnedPosts = allPosts.filter(p => p.pinned).sort(sortByDate);
     const regularPosts = allPosts.filter(p => !p.pinned).sort(sortByDate);
@@ -213,6 +206,7 @@ async function renderPost(postId) {
             <section id="comments-section"></section>
         `;
         contentContainer.innerHTML = postHtml;
+        contentContainer.appendChild(mobileProfileContainer);
         loadGiscus(postId);
     } catch (error) {
         console.error('Failed to load post:', error);
@@ -221,28 +215,31 @@ async function renderPost(postId) {
 }
 
 function renderProfile(data) {
-    const imgEl = document.getElementById('profile-image');
-    const nameEl = document.getElementById('profile-name');
-    const bioEl = document.getElementById('profile-bio');
-    const linksEl = document.getElementById('profile-links');
-    const additionalInfoEl = document.getElementById('profile-additional-info');
+    const profiles = ['desktop', 'mobile'];
+    profiles.forEach(type => {
+        const imgEl = document.getElementById(`profile-image-${type}`);
+        const nameEl = document.getElementById(`profile-name-${type}`);
+        const bioEl = document.getElementById(`profile-bio-${type}`);
+        const linksEl = document.getElementById(`profile-links-${type}`);
+        const additionalInfoEl = document.getElementById(`profile-additional-info-${type}`);
 
-    if (data) {
-        imgEl.src = data.image || imgEl.src;
-        nameEl.textContent = data.name || 'Your Name';
-        bioEl.textContent = data.bio || 'Welcome to my blog.';
-        if (data.links && Array.isArray(data.links)) {
-            linksEl.innerHTML = data.links.map(link => 
-                `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.text}</a>`
-            ).join('');
+        if (data) {
+            imgEl.src = data.image || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+            nameEl.textContent = data.name || 'Your Name';
+            bioEl.textContent = data.bio || 'Welcome to my blog.';
+            if (data.links && Array.isArray(data.links)) {
+                linksEl.innerHTML = data.links.map(link => 
+                    `<a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.text}</a>`
+                ).join('');
+            } else {
+                linksEl.innerHTML = '';
+            }
+            additionalInfoEl.textContent = data.additional_info || '';
+        } else {
+            nameEl.textContent = 'Profile Error';
+            bioEl.textContent = 'Could not load profile.';
         }
-        if (data.additional_info) {
-            additionalInfoEl.textContent = data.additional_info;
-        }
-    } else {
-        nameEl.textContent = 'Profile Error';
-        bioEl.textContent = 'Could not load profile.';
-    }
+    });
 }
 
 function loadGiscus(term) {
@@ -285,9 +282,12 @@ async function router() {
             return;
         }
     }
+    
     if (window.allPosts.some(p => p.id === decodedHash)) {
+        bannerContainer.style.display = 'none';
         renderPost(decodedHash);
     } else {
+        renderBanner(window.configData);
         renderPostList(window.allPosts);
     }
 }
@@ -297,9 +297,10 @@ window.addEventListener('DOMContentLoaded', async () => {
         loadConfigData(),
         loadProfileData()
     ]);
+    
+    window.configData = configData;
 
     applyConfig(configData);
-    renderBanner(configData);
     renderProfile(profileData);
     router();
 });
