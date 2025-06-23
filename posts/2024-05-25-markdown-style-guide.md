@@ -1,5 +1,6 @@
 ---
 date: '2024-05-25'
+title: 마크 다운 작성 가이드
 excerpt: '이 블로그에서 사용할 수 있는 모든 마크다운 스타일을 확인해보세요.'
 image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1470'
 ---
