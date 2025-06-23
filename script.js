@@ -8,6 +8,7 @@ const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 
 const contentContainer = document.getElementById('content-container');
 
+// === [수정됨] 버그가 해결된 새로운 Frontmatter 파서 ===
 function parseFrontmatter(text) {
     const frontmatter = {};
     const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
@@ -17,43 +18,43 @@ function parseFrontmatter(text) {
     const yaml = match[1];
     const content = text.slice(match[0].length);
     let currentListKey = null;
+    let lastListItem = null;
 
     yaml.split('\n').forEach(line => {
         if (line.trim() === '') return;
 
-        const isListItem = /^\s*-/.test(line);
-        
-        if (isListItem) {
-            if (!currentListKey) return;
-            const itemMatch = line.match(/^\s*-\s*(\w+):\s*(.*)/);
-            if (itemMatch) {
-                const subKey = itemMatch[1];
-                const subValue = itemMatch[2].trim().replace(/^['"]|['"]$/g, '');
-                
-                if (subKey === 'text') {
-                    frontmatter[currentListKey].push({ [subKey]: subValue });
-                } else if (subKey === 'url' && frontmatter[currentListKey].length > 0) {
-                    Object.assign(frontmatter[currentListKey][frontmatter[currentListKey].length - 1], { [subKey]: subValue });
-                }
-            }
-        } else {
+        const indent = line.match(/^\s*/)[0].length;
+
+        if (indent === 0) { // 최상위 레벨 (키 또는 리스트 시작)
+            currentListKey = null;
             const parts = line.split(':');
             const key = parts[0].trim();
             const value = parts.slice(1).join(':').trim();
 
             if (value) {
-                currentListKey = null;
                 frontmatter[key] = value.replace(/^['"]|['"]$/g, '');
             } else {
-                currentListKey = key;
                 frontmatter[key] = [];
+                currentListKey = key;
+            }
+        } else if (currentListKey && /^\s*-/.test(line)) { // 리스트 아이템
+            const itemMatch = line.match(/^\s*-\s*(\w+):\s*(.*)/);
+            if (itemMatch) {
+                const [, key, value] = itemMatch;
+                lastListItem = { [key]: value.replace(/^['"]|['"]$/g, '') };
+                frontmatter[currentListKey].push(lastListItem);
+            }
+        } else if (lastListItem && /^\s+/.test(line)) { // 리스트 아이템의 하위 속성
+            const subItemMatch = line.match(/^\s+(\w+):\s*(.*)/);
+            if(subItemMatch) {
+                const [, key, value] = subItemMatch;
+                lastListItem[key] = value.replace(/^['"]|['"]$/g, '');
             }
         }
     });
 
     return { frontmatter, content };
 }
-
 
 function formatTitleFromId(id) {
     const nameOnly = id.replace(/\.md$/, '');
