@@ -30,29 +30,53 @@ function formatTitleFromId(id) {
     return titlePart.replace(/-+/g, ' ');
 }
 
-// 재귀 함수 대신 단순 파일 목록 읽기 함수로 변경
+// 재귀 함수 대신, 해당 폴더의 파일 목록만 읽는 단순한 함수
 function getFilesInDir(dir) {
-    if (!fs.existsSync(dir)) return [];
-    const list = fs.readdirSync(dir);
-    return list.filter(file => file.endsWith('.md')).map(file => path.join(dir, file));
+    if (!fs.existsSync(dir)) {
+        console.log(`Directory not found: ${dir}`);
+        return [];
+    }
+    try {
+        const list = fs.readdirSync(dir);
+        return list
+            .filter(file => file.endsWith('.md') && fs.statSync(path.join(dir, file)).isFile())
+            .map(file => path.join(dir, file));
+    } catch (error) {
+        console.error(`Error reading directory ${dir}:`, error);
+        return [];
+    }
 }
 
 function processFiles(filePaths, isPinned = false) {
     return filePaths.map(filePath => {
-        const fileContent = fs.readFileSync(filePath, 'utf8');
-        const { data } = grayMatter(fileContent);
-        const relativePath = path.relative(process.cwd(), filePath);
-        const id = relativePath.replace(/\\/g, '/').replace(/\.md$/, '');
-        const title = data.title || formatTitleFromId(path.basename(filePath));
-        
-        return {
-            id,
-            title,
-            pinned: isPinned,
-            choseongTitle: getChoseong(title),
-            ...data
-        };
-    });
+        try {
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const { data } = grayMatter(fileContent);
+            
+            // 파일 경로를 기반으로 id 생성 (운영체제와 무관하게 슬래시(/) 사용)
+            const relativePath = path.relative(process.cwd(), filePath).replace(/\\/g, '/');
+            const id = relativePath.replace(/\.md$/, '');
+            
+            const title = data.title || formatTitleFromId(path.basename(filePath));
+            
+            // pinned 속성은 오직 isPinned 인자에 의해서만 결정됨
+            const postData = {
+                id,
+                title,
+                pinned: isPinned,
+                choseongTitle: getChoseong(title),
+                ...data
+            };
+            // frontmatter에 있는 pinned 속성은 무시하므로, 최종 객체에서 삭제
+            delete postData.pinned; 
+            postData.pinned = isPinned;
+
+            return postData;
+        } catch (error) {
+            console.error(`Error processing file ${filePath}:`, error);
+            return null;
+        }
+    }).filter(post => post !== null); // 에러가 발생한 파일은 제외
 }
 
 function main() {
