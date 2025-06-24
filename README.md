@@ -1,86 +1,118 @@
-1.  **[최초 설정](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-1-%EC%B5%9C%EC%B4%88-%EC%84%A4%EC%A0%95)**: 깃허브 레포지토리 생성부터 코드 설정까지, 딱 한 번만 하면 되는 과정입니다.
-2.  **[콘텐츠 관리](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-2-%EC%BD%98%ED%85%90%EC%B8%A0-%EA%B4%80%EB%A6%AC-%EC%9D%BC%EC%83%81%EC%A0%81%EC%9D%B8-%EC%9E%91%EC%97%85)**: 새 글을 쓰거나 프로필을 수정하는 등, 블로그를 운영하며 계속하게 될 작업입니다.
-3.  **[커스터마이징 가이드](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-3-%EC%BB%A4%EC%8A%A4%ED%84%B0%EB%A7%88%EC%9D%B4%EC%A7%95-%EA%B0%80%EC%9D%B4%EB%93%9C-%EB%B8%94%EB%A1%9C%EA%B7%B8-%EA%BE%B8%EB%AF%B8%EA%B8%B0)**: `config.md` 파일을 통해 블로그의 디자인을 마음대로 바꾸는 방법입니다.
+# 🚀 My GitHub Blog: 깃허브로 나만의 블로그 만들기
+
+이 프로젝트는 깃허브 레포지토리를 데이터베이스처럼 사용하여, 설치나 서버 비용 없이 멋진 개인 블로그를 운영할 수 있는 템플릿입니다. 모든 글과 설정은 깃허브에서 직접 관리하며, 웹사이트는 자동으로 최신 내용을 반영합니다.
+
+- **[내 블로그 데모 바로가기](https://tanat05.github.io/my-blog-posts/)**
+
+## ✨ 주요 기능
+
+-   **100% 깃허브 기반**: 별도의 데이터베이스나 서버가 필요 없습니다.
+-   **파일 기반 콘텐츠 관리**: 마크다운(`.md`) 파일로 쉽게 글을 작성하고 관리할 수 있습니다.
+-   **강력한 커스터마이징**: `config.md` 파일 하나로 배너, 배경, 색상, 폰트 등 블로그의 모든 디자인을 변경할 수 있습니다.
+-   **자동화된 빌드**: GitHub Actions가 글을 쓸 때마다 블로그 데이터를 자동으로 최신화합니다.
+-   **지능형 검색**: 제목, 내용, 초성 검색 및 약간의 오타 보정을 지원하는 강력한 검색 기능이 내장되어 있습니다.
+-   **댓글 기능**: [Giscus](https://giscus.app/ko) (GitHub Discussions 기반)를 이용한 댓글 시스템이 연동되어 있습니다.
+-   **추가 기능**: 고정글, 최근 본 글 목록, '더 보기' 페이지네이션 등 편의 기능이 포함되어 있습니다.
+
+---
+
+## 📖 시작 가이드
+
+블로그 구축은 크게 3개의 파트로 나뉩니다.
+
+1.  **[Part 1: 최초 설정](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-1-최초-설정)**: 깃허브 레포지토리 생성부터 코드 설정까지, 딱 한 번만 하면 되는 과정입니다.
+2.  **[Part 2: 콘텐츠 관리](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-2-콘텐츠-관리-일상적인-작업)**: 새 글을 쓰거나 프로필을 수정하는 등, 블로그를 운영하며 계속하게 될 작업입니다.
+3.  **[Part 3: 커스터마이징 가이드](https://github.com/Tanat05/my-blog-posts?tab=readme-ov-file#part-3-커스터마이징-가이드-블로그-꾸미기)**: `config.md` 파일을 통해 블로그의 디자인을 마음대로 바꾸는 방법입니다.
 
 ---
 
 # Part 1: 최초 설정
 
 ## 0단계: 준비물
-먼저, 제가 마지막으로 드린 `index.html`, `style.css`, `script.js` 세 개의 파일을 컴퓨터에 준비해주세요.
+
+먼저, 이 프로젝트의 핵심 코드 3개를 컴퓨터에 준비해주세요.
+-   [`index.html`](https://raw.githubusercontent.com/Tanat05/my-blog-posts/main/index.html)
+-   [`style.css`](https://raw.githubusercontent.com/Tanat05/my-blog-posts/main/style.css)
+-   [`script.js`](https://raw.githubusercontent.com/Tanat05/my-blog-posts/main/script.js)
+(링크를 마우스 오른쪽 클릭 > '다른 이름으로 링크 저장'으로 다운로드하세요.)
 
 ## 1단계: 깃허브 레포지토리 2개 만들기
 
 우리 블로그는 **두 개의 분리된 깃허브 레포지토리**를 사용합니다. 이것이 가장 중요한 핵심입니다.
 
-1.  **콘텐츠 레포지토리 (A):**
-    *   **역할**: 블로그 글(`*.md`), 이미지, 설정 파일(`config.md`, `profile.md`)을 저장하는 '창고'입니다.
-    *   **만들기**:
-        *   새로운 깃허브 레포지토리를 만듭니다.
-        *   이름: **`my-blog-posts`** (다른 이름도 가능하지만, 가이드에서는 이 이름을 기준으로 설명합니다.)
-        *   **반드시 `Public`으로 설정해야 합니다.**
+-   **(A) 콘텐츠 저장소**: 블로그 글, 이미지, 설정 파일 등 **데이터**를 보관하는 창고
+-   **(B) 웹사이트 저장소**: 블로그를 보여주는 **코드**를 담고, 실제 웹 주소로 배포되는 집
 
-2.  **웹사이트 레포지토리 (B):**
-    *   **역할**: 실제 웹사이트 코드(`index.html`, `style.css`, `script.js`)가 들어가는 '집'입니다. 댓글도 이 곳에 저장됩니다.
-    *   **만들기**:
-        *   새로운 깃허브 레포지토리를 만듭니다.
-        *   이름: **`my-blog`** (또는 `[내아이디].github.io`로 만들면 바로 블로그 주소가 됩니다.)
-        *   **반드시 `Public`으로 설정해야 합니다.**
+
+
+### 1. 콘텐츠 저장소 (A) 만들기
+-   **역할**: 글(`*.md`), 이미지, 설정 파일(`config.md`, `profile.md`)을 저장하는 '창고'입니다.
+-   **만들기**:
+    -   새로운 깃허브 레포지토리를 만듭니다.
+    -   이름: **`my-blog-posts`** (다른 이름도 가능하지만, 가이드에서는 이 이름을 기준으로 설명합니다.)
+    -   **반드시 `Public`으로 설정해야 합니다.**
+
+### 2. 웹사이트 저장소 (B) 만들기
+-   **역할**: 실제 웹사이트 코드(`index.html` 등)가 들어가는 '집'입니다. 댓글도 이 곳에 저장됩니다.
+-   **만들기**:
+    -   새로운 깃허브 레포지토리를 만듭니다.
+    -   이름: **`{내 깃허브 아이디}.github.io`** 로 정확히 입력해야 블로그 주소가 됩니다. (예: `Tanat05.github.io`)
+    -   **반드시 `Public`으로 설정해야 합니다.**
 
 ## 2단계: Giscus 댓글 시스템 설정
 
-1.  **웹사이트 레포지토리(B)에 Discussions 활성화**:
-    *   `my-blog` 레포지토리 페이지로 이동합니다.
-    *   상단 탭에서 `Settings` > `General` 페이지로 이동합니다.
-    *   `Features` 섹션에서 **`Discussions`** 항목의 체크박스를 켭니다.
+1.  **웹사이트 저장소(B)에 Discussions 활성화**:
+    -   `{내 깃허브 아이디}.github.io` 레포지토리 `Settings` > `General` 페이지로 이동합니다.
+    -   `Features` 섹션에서 **`Discussions`** 항목의 체크박스를 켭니다.
 
 2.  **Giscus 앱 설치**:
-    *   [Giscus 앱 페이지](https://github.com/apps/giscus)로 가서 `Install`을 누릅니다.
-    *   설치 대상을 **`my-blog` 레포지토리(B)만** 선택하고 권한을 승인합니다.
+    -   [Giscus 앱 페이지](https://github.com/apps/giscus)로 가서 `Install`을 누릅니다.
+    -   설치 대상을 **`{내 깃허브 아이디}.github.io` 레포지토리(B)만** 선택하고 권한을 승인합니다.
 
 3.  **Giscus 정보 얻기**:
-    *   [Giscus 공식 웹사이트](https://giscus.app/ko)로 이동합니다.
-    *   **리포지토리** 입력창에 `[내 깃허브 아이디]/my-blog`를 입력하고 Enter를 누릅니다.
-    *   나머지 설정을 마치면, 페이지 하단에 `<script>` 태그가 생성됩니다. 이 태그 안에 있는 `data-repo-id`와 `data-category-id` 값을 메모장 같은 곳에 복사해두세요. **(매우 중요!)**
+    -   [Giscus 공식 웹사이트](https://giscus.app/ko)로 이동합니다.
+    -   **리포지토리** 입력창에 `[내 깃허브 아이디]/{내 깃허브 아이디}.github.io`를 입력하고 Enter를 누릅니다.
+    -   나머지 설정을 마치면, 페이지 하단에 `<script>` 태그가 생성됩니다. 이 태그 안에 있는 `data-repo-id`와 `data-category-id` 값을 메모장 같은 곳에 복사해두세요. **(매우 중요!)**
 
 ## 3단계: 코드 업로드 및 설정
 
-1.  **웹사이트 레포지토리(B)에 코드 올리기**:
-    *   `my-blog` 레포지토리에 준비해둔 `index.html`, `style.css`, `script.js` 세 파일을 업로드합니다.
+### 1. 웹사이트 저장소(B)에 코드 올리기
+-   `{내 깃허브 아이디}.github.io` 레포지토리에 준비해둔 `index.html`, `style.css`, `script.js` 세 파일을 업로드합니다.
 
-2.  **`script.js` 파일 설정하기 (가장 중요!)**:
-    *   `my-blog` 레포지토리에서 `script.js` 파일을 클릭하여 편집 화면으로 들어갑니다.
-    *   파일 상단에 있는 **설정 변수들을 본인의 정보로 정확하게 수정**합니다.
+### 2. `script.js` 파일 설정하기 (가장 중요!)
+-   `{내 깃허브 아이디}.github.io` 레포지토리에서 `script.js` 파일을 클릭하여 편집 화면으로 들어갑니다.
+-   파일 상단에 있는 **설정 변수들을 본인의 정보로 정확하게 수정**합니다.
 
-    ```javascript
-    // 예시: 사용자 아이디가 'Tanat05'이고, 레포지토리 이름을 그대로 사용했을 경우
+```javascript
+// 예시: 사용자 아이디가 'Tanat05'이고, 콘텐츠 저장소 이름이 'my-blog-posts'일 경우
 
-    const GITHUB_USER = 'Tanat05'; // 본인 깃허브 아이디
-    const GITHUB_REPO = 'my-blog-posts'; // 1단계에서 만든 "콘텐츠 레포지토리(A)" 이름
+const GITHUB_USER = 'Tanat05'; // 본인 깃허브 아이디
+const GITHUB_REPO = 'my-blog-posts'; // 1단계에서 만든 "콘텐츠 저장소(A)" 이름
+const DEFAULT_BRANCH = 'main'; // 콘텐츠 저장소의 기본 브랜치 이름 (master일 수도 있음)
 
-    const GISCUS_REPO = 'Tanat05/my-blog'; // 1단계에서 만든 "웹사이트 레포지토리(B)" 주소
-    const GISCUS_REPO_ID = 'R_ABCD...'; // 2단계에서 복사해둔 repo-id 값
-    const GISCUS_CATEGORY_ID = 'DIC_ABCD...'; // 2단계에서 복사해둔 category-id 값
-    ```
-    *   수정이 끝나면 `Commit changes` 버튼을 눌러 저장합니다.
+const GISCUS_REPO = 'Tanat05/Tanat05.github.io'; // "사용자명/웹사이트저장소(B)이름"
+const GISCUS_REPO_ID = 'R_ABCD...'; // 2단계에서 복사해둔 repo-id 값
+const GISCUS_CATEGORY_ID = 'DIC_ABCD...'; // 2단계에서 복사해둔 category-id 값
+```
+-   수정이 끝나면 `Commit changes` 버튼을 눌러 저장합니다.
 
 ## 4단계: 블로그 배포하기 (GitHub Pages)
 
-1.  `my-blog` 레포지토리 페이지에서 `Settings` > `Pages`로 이동합니다.
+1.  `{내 깃허브 아이디}.github.io` 레포지토리 `Settings` > `Pages`로 이동합니다.
 2.  `Source`를 `Deploy from a branch`로 선택합니다.
 3.  `Branch`를 `main` (또는 `master`) / `(root)`로 설정하고 `Save`를 누릅니다.
-4.  잠시 후 페이지가 새로고침되면, 상단에 `Your site is live at https://[내 아이디].github.io/my-blog/` 와 같이 블로그 주소가 나타납니다.
+4.  잠시 후 페이지가 새로고침되면, 상단에 `Your site is live at https://[내 아이디].github.io/` 와 같이 블로그 주소가 나타납니다.
 
 ---
 
 # Part 2: 콘텐츠 관리 (일상적인 작업)
 
-이제부터는 코드 파일을 건드릴 필요 없이, **오직 `my-blog-posts` 레포지토리(A)만** 관리하면 됩니다.
+이제부터는 코드 파일을 건드릴 필요 없이, **오직 콘텐츠 저장소(`my-blog-posts`)만** 관리하면 됩니다.
 
 ## 글 작성하기
 
-*   `my-blog-posts` 레포지토리의 **`posts` 폴더** 안에 `[파일명].md` 형식으로 새 파일을 만듭니다. 파일명은 URL이 되므로 가급적 영어를 사용하거나, 한글을 사용해도 괜찮습니다.
-*   아래 템플릿을 복사하여 내용을 채웁니다.
+-   `my-blog-posts` 레포지토리의 **`posts` 폴더** 안에 `[파일명].md` 형식으로 새 파일을 만듭니다.
+-   아래 템플릿을 복사하여 내용을 채웁니다.
 
 **게시글 템플릿 (`YYYY-MM-DD-my-new-art.md`):**
 ```yaml
@@ -89,13 +121,16 @@ title: 'My New Art' # 여기에 글 제목을 쓰세요.
 date: '2024-05-26' # 작성 날짜
 image: 'https://.../my-new-art.png' # 대표 이미지 URL
 excerpt: '이곳에 목록에서 보일 짧은 요약글을 씁니다.' # 요약글
-pinned: false # 상단에 고정하려면 true로 변경
 ---
 
 ## 본문 시작
 
 여기에 마크다운 문법을 사용해서 자유롭게 글을 작성하세요.
 ```
+
+## 글 고정하기
+-   고정하고 싶은 글은 `my-blog-posts` 레포지토리의 **`pinned` 폴더**로 옮기기만 하면 됩니다.
+-   Frontmatter에 `pinned: true` 속성을 쓸 필요가 없습니다.
 
 ## 이미지 관리하기
 
@@ -142,7 +177,7 @@ banner_subtext: '이곳은 저의 작업물을 공유하는 공간입니다.'
 # banner_image: '' # 이미지 배너는 비워두거나 주석처리(#)
 
 # 이미지 배너만 사용
-banner_image: '...'
+banner_image: 'https://...'
 # banner_text: '' # 텍스트는 비워두거나 주석처리
 
 # 둘 다 비워두면 배너가 아예 표시되지 않습니다.
@@ -164,13 +199,7 @@ background_gradient_end: '#414345'
 # 링크, 강조 텍스트 등에 사용될 포인트 색상
 accent_color: '#FAD961' # 예시: 노란색
 
-# 기본 글자색 (밝은 회색)
-primary_text_color: '#e0e0e0'
-
-# 보조 글자색 (날짜, 요약글 등)
-secondary_text-color: '#a0a0a0'
-
 # 구글 폰트 이름 (따옴표 안에 정확히 입력)
 font_family: "'Noto Sans KR', sans-serif"
 ```
-이제 이 가이드를 따라 블로그를 설정하고, `config.md`와 `profile.md` 파일을 수정하며 자신만의 멋진 공간을 만들어보세요
+이제 이 가이드를 따라 블로그를 설정하고, `config.md`와 `profile.md` 파일을 수정하며 자신만의 멋진 공간을 만들어보세요.
