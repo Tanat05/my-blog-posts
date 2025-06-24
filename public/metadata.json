@@ -14,6 +14,15 @@
       "pinned": true
     },
     {
+      "id": "posts/2024-05-30-advanced-css-customization",
+      "title": "CSS로 블로그 디자인 직접 수정하기 (고급)",
+      "choseongTitle": "CSSㄹ ㅂㄹㄱ ㄷㅈㅇ ㅈㅈ ㅅㅈㅎㄱ (ㄱㄱ)",
+      "date": "2024-05-30",
+      "excerpt": "config.md를 넘어, CSS를 직접 수정하여 블로그의 세부 디자인을 자유롭게 변경하는 방법을 알아봅니다.",
+      "image": "https://images.unsplash.com/photo-1524749292158-7540c2494485?q=80&w=1287",
+      "pinned": false
+    },
+    {
       "id": "posts/2024-05-29-basic-git-guide",
       "title": "블로그 관리를 위한 최소한의 Git 가이드",
       "choseongTitle": "ㅂㄹㄱ ㄱㄹㄹ ㅇㅎ ㅊㅅㅎㅇ Git ㄱㅇㄷ",
