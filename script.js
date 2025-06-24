@@ -114,6 +114,19 @@ const processFiles = (files, isPinned = false) => {
 };
 
 async function fetchAllPosts() {
+    const topLevelUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
+    const topLevelResponse = await fetch(topLevelUrl);
+    if (topLevelResponse.ok) {
+        const items = await topLevelResponse.json();
+        const hasFiles = items.some(item => item.type === 'file' && item.name.endsWith('.md'));
+        const hasDirs = items.some(item => item.type === 'dir');
+        if (hasFiles && hasDirs) {
+            throw new Error(`[폴더 구조 오류] 'posts' 폴더 안에 파일과 하위 폴더를 함께 사용할 수 없습니다. 한 가지 방식만 선택해주세요.`);
+        }
+    } else if (topLevelResponse.status !== 404) {
+        throw new Error(`API Error fetching ${POSTS_DIR}: ${topLevelResponse.statusText}`);
+    }
+
     const [pinnedFiles, regularFiles] = await Promise.all([
         recursivelyFetchFiles(PINNED_DIR),
         recursivelyFetchFiles(POSTS_DIR)
@@ -262,7 +275,6 @@ function renderPostList(posts, page = 1) {
     }
     const grid = contentContainer.querySelector('.post-grid');
     if (!grid) return;
-
     const postsHtml = postsToRender.map(post => {
         const pinIconHtml = post.pinned ? '<div class="pin-icon">📌</div>' : '';
         return `
@@ -277,13 +289,11 @@ function renderPostList(posts, page = 1) {
             </div>
         `;
     }).join('');
-
     if (page === 1) {
         grid.innerHTML = postsHtml;
     } else {
         grid.insertAdjacentHTML('beforeend', postsHtml);
     }
-    
     const isSearchActive = searchInput.value.length > 0;
     if (end >= posts.length || isSearchActive) {
         loadMoreContainer.style.display = 'none';
@@ -314,6 +324,7 @@ async function renderPost(postId) {
             <section id="comments-section"></section>
         `;
         contentContainer.innerHTML = postHtml;
+        mobileProfileContainer.style.display = 'block';
         const commentsSection = document.getElementById('comments-section');
         if (commentsSection) {
             contentContainer.insertBefore(mobileProfileContainer, commentsSection);
@@ -400,7 +411,7 @@ async function router() {
             });
         } catch (error) {
             console.error('Failed to pre-fetch posts:', error);
-            contentContainer.innerHTML = `<h3>Failed to load blog data: ${error.message}</h3>`;
+            contentContainer.innerHTML = `<h3>${error.message}</h3>`;
             return;
         }
     }
