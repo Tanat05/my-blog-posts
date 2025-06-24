@@ -262,6 +262,7 @@ function renderPostList(posts, page = 1) {
     }
     const grid = contentContainer.querySelector('.post-grid');
     if (!grid) return;
+
     const postsHtml = postsToRender.map(post => {
         const pinIconHtml = post.pinned ? '<div class="pin-icon">📌</div>' : '';
         return `
@@ -276,11 +277,13 @@ function renderPostList(posts, page = 1) {
             </div>
         `;
     }).join('');
+
     if (page === 1) {
         grid.innerHTML = postsHtml;
     } else {
         grid.insertAdjacentHTML('beforeend', postsHtml);
     }
+    
     const isSearchActive = searchInput.value.length > 0;
     if (end >= posts.length || isSearchActive) {
         loadMoreContainer.style.display = 'none';
