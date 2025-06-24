@@ -1,4 +1,4 @@
-import { getChoseong } from "https://unpkg.com/es-hangul/dist/index.mjs";
+import * as Hangul from "https://unpkg.com/es-hangul/dist/index.mjs";
 
 const GITHUB_USER = 'Tanat05';
 const GITHUB_REPO = 'my-blog-posts';
@@ -32,11 +32,11 @@ let currentDisplayedPosts = [];
 async function loadMetadata() {
     try {
         const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${DEFAULT_BRANCH}/public/metadata.json?t=${new Date().getTime()}`);
-        if (!response.ok) throw new Error('metadata.json not found');
+        if (!response.ok) throw new Error('metadata.json not found. Check repository, branch name, and Actions build status.');
         return await response.json();
     } catch (error) {
         console.error("Failed to load metadata:", error);
-        contentContainer.innerHTML = `<h3>블로그 데이터를 불러오는데 실패했습니다. <br> 레포지토리의 Actions 빌드 성공 여부를 확인해주세요.</h3>`;
+        contentContainer.innerHTML = `<h3>블로그 데이터를 불러오는데 실패했습니다. <br> 레포지토리의 기본 브랜치 이름과 Actions 빌드 성공 여부를 확인해주세요.</h3>`;
         return null;
     }
 }
@@ -46,11 +46,50 @@ async function fetchSinglePost(postId) {
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
     const text = await response.text();
-    const { content } = marked.lexer(text);
-    const bodyStartIndex = content.findIndex(token => token.type === 'heading' || token.type === 'paragraph');
-    const body = content.slice(bodyStartIndex >= 0 ? bodyStartIndex : 0);
-    const contentHtml = marked.parser(body);
+    const { content } = parseFrontmatter(text);
+    const contentHtml = marked.parse(content);
     return { contentHtml };
+}
+
+function parseFrontmatter(text) {
+    const frontmatter = {};
+    const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+    const match = frontmatterRegex.exec(text);
+    if (!match) return { frontmatter: {}, content: text };
+    const yaml = match[1];
+    const content = text.slice(match[0].length);
+    let currentListKey = null;
+    let lastListItem = null;
+    yaml.split('\n').forEach(line => {
+        if (line.trim() === '') return;
+        const indent = line.match(/^\s*/)[0].length;
+        if (indent === 0) {
+            currentListKey = null;
+            const parts = line.split(':');
+            const key = parts[0].trim();
+            const value = parts.slice(1).join(':').trim();
+            if (value) {
+                frontmatter[key] = value.replace(/^['"]|['"]$/g, '');
+            } else {
+                frontmatter[key] = [];
+                currentListKey = key;
+            }
+        } else if (currentListKey && /^\s*-/.test(line)) {
+            const itemMatch = line.match(/^\s*-\s*(\w+):\s*(.*)/);
+            if (itemMatch) {
+                const [, key, value] = itemMatch;
+                lastListItem = { [key]: value.replace(/^['"]|['"]$/g, '') };
+                frontmatter[currentListKey].push(lastListItem);
+            }
+        } else if (lastListItem && /^\s+/.test(line)) {
+            const subItemMatch = line.match(/^\s+(\w+):\s*(.*)/);
+            if(subItemMatch) {
+                const [, key, value] = subItemMatch;
+                lastListItem[key] = value.replace(/^['"]|['"]$/g, '');
+            }
+        }
+    });
+    return { frontmatter, content };
 }
 
 function applyConfig(config) {
