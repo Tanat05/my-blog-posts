@@ -16,8 +16,8 @@ accent_color: '#87CEFA' # 링크, 강조 등에 사용될 주요 색상 (LightSk
 primary_text_color: '#e0e0e0'
 secondary_text_color: '#a0a0a0'
 font_family: "'Inter', sans-serif" # Google Fonts 이름
----
 
 # === 게시글 기본값 설정 ===
 default_post_image: 'https://images.unsplash.com/photo-1542435503-956c469947f6?q=80&w=1374'
 default_post_excerpt: '이 글의 요약이 없습니다.'
+---
