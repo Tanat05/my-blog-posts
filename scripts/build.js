@@ -30,19 +30,11 @@ function formatTitleFromId(id) {
     return titlePart.replace(/-+/g, ' ');
 }
 
-function getFilesRecursively(dir) {
-    let results = [];
+// 재귀 함수 대신 단순 파일 목록 읽기 함수로 변경
+function getFilesInDir(dir) {
+    if (!fs.existsSync(dir)) return [];
     const list = fs.readdirSync(dir);
-    list.forEach(file => {
-        file = path.join(dir, file);
-        const stat = fs.statSync(file);
-        if (stat && stat.isDirectory()) {
-            results = results.concat(getFilesRecursively(file));
-        } else if (file.endsWith('.md')) {
-            results.push(file);
-        }
-    });
-    return results;
+    return list.filter(file => file.endsWith('.md')).map(file => path.join(dir, file));
 }
 
 function processFiles(filePaths, isPinned = false) {
@@ -66,8 +58,8 @@ function processFiles(filePaths, isPinned = false) {
 function main() {
     console.log("Building metadata...");
     
-    const pinnedFiles = fs.existsSync(pinnedDir) ? getFilesRecursively(pinnedDir) : [];
-    const regularFiles = fs.existsSync(postsDir) ? getFilesRecursively(postsDir) : [];
+    const pinnedFiles = getFilesInDir(pinnedDir);
+    const regularFiles = getFilesInDir(postsDir);
     
     const pinnedPosts = processFiles(pinnedFiles, true);
     const regularPosts = processFiles(regularFiles, false);
