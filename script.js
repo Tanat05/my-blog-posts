@@ -3,6 +3,7 @@ import { getChoseong } from "https://unpkg.com/es-hangul/dist/index.mjs";
 const GITHUB_USER = 'Tanat05';
 const GITHUB_REPO = 'my-blog-posts';
 const POSTS_DIR = 'posts';
+const PINNED_DIR = 'pinned';
 
 const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
@@ -79,6 +80,60 @@ function formatTitleFromId(id) {
     return titlePart.replace(/-+/g, ' ');
 }
 
+async function recursivelyFetchFiles(path) {
+    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+        if (response.status === 404) return [];
+        throw new Error(`API Error fetching ${path}: ${response.statusText}`);
+    }
+    const files = await response.json();
+    if (!Array.isArray(files)) return [];
+    
+    let markdownFiles = [];
+    for (const file of files) {
+        if (file.type === 'dir') {
+            const subFiles = await recursivelyFetchFiles(file.path);
+            markdownFiles.push(...subFiles);
+        } else if (file.name.endsWith('.md')) {
+            markdownFiles.push(file);
+        }
+    }
+    return markdownFiles;
+}
+
+const processFiles = (files, isPinned = false) => {
+    return files.map(async file => {
+        const id = file.path.replace(/\.md$/, '');
+        const fileResponse = await fetch(file.download_url);
+        const text = await fileResponse.text();
+        const { frontmatter } = parseFrontmatter(text);
+        const title = frontmatter.title || formatTitleFromId(file.name);
+        return { id, title, pinned: isPinned, choseongTitle: getChoseong(title), ...frontmatter };
+    });
+};
+
+async function fetchAllPosts() {
+    const [pinnedFiles, regularFiles] = await Promise.all([
+        recursivelyFetchFiles(PINNED_DIR),
+        recursivelyFetchFiles(POSTS_DIR)
+    ]);
+    
+    const pinnedPostPromises = processFiles(pinnedFiles, true);
+    const regularPostPromises = processFiles(regularFiles, false);
+    
+    const [pinnedPostsData, regularPostsData] = await Promise.all([
+        Promise.all(pinnedPostPromises),
+        Promise.all(regularPostPromises)
+    ]);
+    
+    const sortByDate = (a, b) => new Date(b.date) - new Date(a.date);
+    const sortedPinned = pinnedPostsData.sort(sortByDate);
+    const sortedRegular = regularPostsData.sort(sortByDate);
+    
+    return [...sortedPinned, ...sortedRegular];
+}
+
 function applyConfig(config) {
     if (!config) return;
     const root = document.documentElement;
@@ -138,32 +193,8 @@ async function loadConfigData() {
     }
 }
 
-async function fetchAllPosts() {
-    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
-    const response = await fetch(apiUrl);
-    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-    const files = await response.json();
-    if (!Array.isArray(files)) throw new Error("Folder not found or is empty.");
-    
-    const postPromises = files.filter(file => file.name.endsWith('.md')).map(async file => {
-        const id = file.name.replace(/\.md$/, '');
-        const fileResponse = await fetch(file.download_url);
-        const text = await fileResponse.text();
-        const { frontmatter } = parseFrontmatter(text);
-        const title = frontmatter.title || formatTitleFromId(file.name);
-        return { id, title, pinned: frontmatter.pinned === 'true', choseongTitle: getChoseong(title), ...frontmatter };
-    });
-    
-    const allPosts = await Promise.all(postPromises);
-    const sortByDate = (a, b) => new Date(b.date) - new Date(a.date);
-    const pinnedPosts = allPosts.filter(p => p.pinned).sort(sortByDate);
-    const regularPosts = allPosts.filter(p => !p.pinned).sort(sortByDate);
-    
-    return [...pinnedPosts, ...regularPosts];
-}
-
 async function fetchSinglePost(postId) {
-    const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${POSTS_DIR}/${postId}.md`;
+    const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${postId}.md`;
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
     const text = await response.text();
@@ -226,14 +257,11 @@ function renderPostList(posts, page = 1) {
     const start = (page - 1) * postsPerPage;
     const end = start + postsPerPage;
     const postsToRender = posts.slice(start, end);
-
     if (page === 1) {
         contentContainer.innerHTML = '<div class="post-grid"></div>';
     }
-
     const grid = contentContainer.querySelector('.post-grid');
     if (!grid) return;
-
     const postsHtml = postsToRender.map(post => {
         const pinIconHtml = post.pinned ? '<div class="pin-icon">📌</div>' : '';
         return `
@@ -248,13 +276,11 @@ function renderPostList(posts, page = 1) {
             </div>
         `;
     }).join('');
-
     if (page === 1) {
         grid.innerHTML = postsHtml;
     } else {
         grid.insertAdjacentHTML('beforeend', postsHtml);
     }
-    
     const isSearchActive = searchInput.value.length > 0;
     if (end >= posts.length || isSearchActive) {
         loadMoreContainer.style.display = 'none';
@@ -267,10 +293,8 @@ async function renderPost(postId) {
     try {
         const postDataFromList = window.allPosts.find(p => p.id === postId);
         if (!postDataFromList) throw new Error("Post not found in list.");
-        
         const { contentHtml, frontmatter } = await fetchSinglePost(postId);
         const title = postDataFromList.title;
-
         addRecentPost({ id: postId, title: title });
         const postHtml = `
             <div class="post-detail-wrapper">
@@ -398,12 +422,10 @@ loadMoreBtn.addEventListener('click', () => {
 searchInput.addEventListener('input', (e) => {
     const query = e.target.value;
     if (query) {
-        const choseongQuery = getChoseong(query);
         const searchPattern = {
           $or: [
             { title: query },
-            { excerpt: query },
-            { choseongTitle: choseongQuery }
+            { choseongTitle: getChoseong(query) }
           ]
         };
         const results = fuse.search(searchPattern);
