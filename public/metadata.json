@@ -14,6 +14,15 @@
       "pinned": true
     },
     {
+      "id": "posts/2024-05-28-how-to-upload-post",
+      "title": "새 글 작성 및 고정글 관리 방법",
+      "choseongTitle": "ㅅ ㄱ ㅈㅅ ㅁ ㄱㅈㄱ ㄱㄹ ㅂㅂ",
+      "date": "2024-05-28",
+      "excerpt": "새로운 글을 작성하고, 중요한 글을 상단에 고정하는 방법을 알아봅시다.",
+      "image": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?q=80&w=1470",
+      "pinned": false
+    },
+    {
       "id": "posts/2024-05-27-how-to-customize-blog",
       "title": "나만의 블로그로 꾸미는 방법",
       "choseongTitle": "ㄴㅁㅇ ㅂㄹㄱㄹ ㄲㅁㄴ ㅂㅂ",
