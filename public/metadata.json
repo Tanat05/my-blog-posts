@@ -12,6 +12,15 @@
       "excerpt": "이것은 제 블로그의 테스트 글입니다. 깃허브와 Next.js를 이용해 만들고 있습니다.",
       "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160",
       "pinned": true
+    },
+    {
+      "id": "posts/2024-05-26-markdown-style-guide",
+      "title": "마크다운 스타일 가이드",
+      "choseongTitle": "ㅁㅋㄷㅇ ㅅㅌㅇ ㄱㅇㄷ",
+      "date": "2024-05-26",
+      "excerpt": "이 블로그에서 사용할 수 있는 모든 마크다운 스타일을 확인하고 글쓰기에 활용해보세요.",
+      "image": "https://images.unsplash.com/photo-1502945015378-d92933de9428?q=80&w=1470",
+      "pinned": false
     }
   ],
   "profile": {
