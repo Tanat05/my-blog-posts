@@ -81,6 +81,39 @@ function formatTitleFromId(id) {
     return titlePart.replace(/-+/g, ' ');
 }
 
+async function recursivelyFetchFiles(path) {
+    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+        if (response.status === 404) return [];
+        throw new Error(`API Error fetching ${path}: ${response.statusText}`);
+    }
+    const files = await response.json();
+    if (!Array.isArray(files)) return [];
+    
+    let markdownFiles = [];
+    for (const file of files) {
+        if (file.type === 'dir') {
+            const subFiles = await recursivelyFetchFiles(file.path);
+            markdownFiles.push(...subFiles);
+        } else if (file.name.endsWith('.md')) {
+            markdownFiles.push(file);
+        }
+    }
+    return markdownFiles;
+}
+
+const processFiles = (files, isPinned = false) => {
+    return files.map(async file => {
+        const id = file.path.replace(/\.md$/, '');
+        const fileResponse = await fetch(file.download_url);
+        const text = await fileResponse.text();
+        const { frontmatter } = parseFrontmatter(text);
+        const title = frontmatter.title || formatTitleFromId(file.name);
+        return { id, title, pinned: isPinned, choseongTitle: getChoseong(title), ...frontmatter };
+    });
+};
+
 async function fetchAllPosts() {
     const topLevelUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
     const topLevelResponse = await fetch(topLevelUrl);
@@ -89,7 +122,7 @@ async function fetchAllPosts() {
         const hasFiles = items.some(item => item.type === 'file' && item.name.endsWith('.md'));
         const hasDirs = items.some(item => item.type === 'dir');
         if (hasFiles && hasDirs) {
-            throw new Error(`[폴더 구조 오류] 'posts' 폴더 안에 파일과 하위 폴더를 함께 사용할 수 없습니다. 한 가지 방식만 선택해주세요.`);
+            throw new Error(`[Folder Structure Error] The 'posts' folder cannot contain both files and subdirectories. Please choose one structure.`);
         }
     } else if (topLevelResponse.status !== 404) {
         throw new Error(`API Error fetching ${POSTS_DIR}: ${topLevelResponse.statusText}`);
@@ -113,39 +146,6 @@ async function fetchAllPosts() {
     const sortedRegular = regularPostsData.sort(sortByDate);
     
     return [...sortedPinned, ...sortedRegular];
-}
-
-const processFiles = (files, isPinned = false) => {
-    return files.map(async file => {
-        const id = file.path.replace(/\.md$/, '');
-        const fileResponse = await fetch(file.download_url);
-        const text = await fileResponse.text();
-        const { frontmatter } = parseFrontmatter(text);
-        const title = frontmatter.title || formatTitleFromId(file.name);
-        return { id, title, pinned: isPinned, choseongTitle: getChoseong(title), ...frontmatter };
-    });
-};
-
-async function recursivelyFetchFiles(path) {
-    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
-    const response = await fetch(apiUrl);
-    if (!response.ok) {
-        if (response.status === 404) return [];
-        throw new Error(`API Error fetching ${path}: ${response.statusText}`);
-    }
-    const files = await response.json();
-    if (!Array.isArray(files)) return [];
-    
-    let markdownFiles = [];
-    for (const file of files) {
-        if (file.type === 'dir') {
-            const subFiles = await recursivelyFetchFiles(file.path);
-            markdownFiles.push(...subFiles);
-        } else if (file.name.endsWith('.md')) {
-            markdownFiles.push(file);
-        }
-    }
-    return markdownFiles;
 }
 
 function applyConfig(config) {
@@ -372,28 +372,36 @@ searchInput.addEventListener('input', (e) => {
 
 window.addEventListener('DOMContentLoaded', async () => {
     contentContainer.innerHTML = '<div class="loading">Loading...</div>';
-    const metadata = await loadMetadata();
-    if (!metadata) return;
-    
-    window.allPosts = metadata.posts;
-    window.configData = metadata.config;
-    currentDisplayedPosts = metadata.posts;
+    try {
+        const [configData, profileData, allPosts] = await Promise.all([
+            loadConfigData(),
+            loadProfileData(),
+            fetchAllPosts()
+        ]);
+        
+        window.configData = configData;
+        window.allPosts = allPosts;
+        currentDisplayedPosts = allPosts;
 
-    fuse = new Fuse(window.allPosts, {
-        keys: [
-            { name: 'title', weight: 0.6 },
-            { name: 'choseongTitle', weight: 0.6 },
-            { name: 'excerpt', weight: 0.3 },
-            { name: 'id', weight: 0.1 }
-        ],
-        includeScore: true,
-        threshold: 0.4,
-    });
-    
-    applyConfig(metadata.config);
-    renderProfile(metadata.profile);
-    renderRecentPosts();
-    router();
+        fuse = new Fuse(window.allPosts, {
+            keys: [
+                { name: 'title', weight: 0.6 },
+                { name: 'choseongTitle', weight: 0.6 },
+                { name: 'excerpt', weight: 0.3 },
+                { name: 'id', weight: 0.1 }
+            ],
+            includeScore: true,
+            threshold: 0.4,
+        });
+        
+        applyConfig(configData);
+        renderProfile(profileData);
+        renderRecentPosts();
+        router();
+    } catch (error) {
+        console.error('Initialization failed:', error);
+        contentContainer.innerHTML = `<h3>블로그 데이터를 불러오는데 실패했습니다: ${error.message}</h3>`;
+    }
 });
 
 window.addEventListener('hashchange', router);
