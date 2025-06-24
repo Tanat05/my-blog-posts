@@ -3,38 +3,22 @@ name: Build Blog Metadata
 on:
   push:
     branches:
-      - main  # main 브랜치에 push가 일어날 때마다 실행
+      - main
     paths:
-      - 'posts/**'        # posts 폴더 내용이 변경될 때
-      - 'pinned/**'       # pinned 폴더 내용이 변경될 때
-      - 'profile.md'      # profile.md 파일이 변경될 때
-      - 'config.md'       # config.md 파일이 변경될 때
-      - 'scripts/build.js'  # 빌드 스크립트 자체가 변경될 때
-      - '.github/workflows/build-metadata.yml' # 워크플로우 파일이 변경될 때
-  workflow_dispatch: # 수동으로 실행할 수 있도록 버튼 추가
+      - 'posts/**'
+      - 'pinned/**'
+      - 'profile.md'
+      - 'config.md'
+      - 'scripts/build.js'
+      - '.github/workflows/build-metadata.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18' # Node.js 18 버전 사용
-
-      - name: Install dependencies
-        run: npm install gray-matter # gray-matter 라이브러리 설치
-
-      - name: Run build script
-        run: node scripts/build.js # 아래에서 만들 빌드 스크립트 실행
-
-      - name: Commit and push if changed
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add public/metadata.json # 생성된 파일을 스테이징
-          git diff --staged --quiet || (git commit -m "chore: auto-generate metadata" && git push)
