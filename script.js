@@ -2,6 +2,9 @@ import { getChoseong } from "https://unpkg.com/es-hangul/dist/index.mjs";
 
 const GITHUB_USER = 'Tanat05';
 const GITHUB_REPO = 'my-blog-posts';
+const POSTS_DIR = 'posts';
+const PINNED_DIR = 'pinned';
+const DEFAULT_BRANCH = 'main'; // 또는 'master'
 
 const GISCUS_REPO = 'Tanat05/my-blog-posts';
 const GISCUS_REPO_ID = 'R_kgDOPAg55g';
@@ -10,6 +13,9 @@ const GISCUS_CATEGORY_ID = 'DIC_kwDOPAg55s4Cr42K';
 marked.setOptions({
   gfm: true,
   breaks: true,
+  pedantic: false,
+  smartLists: true,
+  smartypants: false,
   highlight: function(code, lang) {
     const language = hljs.getLanguage(lang) ? lang : 'plaintext';
     return hljs.highlight(code, { language }).value;
@@ -30,23 +36,24 @@ let currentDisplayedPosts = [];
 
 async function loadMetadata() {
     try {
-        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/public/metadata.json?t=${new Date().getTime()}`);
-        if (!response.ok) throw new Error('metadata.json not found');
+        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${DEFAULT_BRANCH}/public/metadata.json?t=${new Date().getTime()}`);
+        if (!response.ok) throw new Error('metadata.json not found. Check repository, branch name, and Actions build status.');
         return await response.json();
     } catch (error) {
         console.error("Failed to load metadata:", error);
-        contentContainer.innerHTML = `<h3>블로그 데이터를 불러오는데 실패했습니다. 깃허브 레포지토리의 Actions 탭에서 빌드가 성공했는지 확인해주세요.</h3>`;
+        contentContainer.innerHTML = `<h3>블로그 데이터를 불러오는데 실패했습니다. <br> 레포지토리의 기본 브랜치 이름과 Actions 빌드 성공 여부를 확인해주세요.</h3>`;
         return null;
     }
 }
 
 async function fetchSinglePost(postId) {
-    const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${postId}.md`;
+    const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${DEFAULT_BRANCH}/${postId}.md`;
     const response = await fetch(fileUrl);
     if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
     const text = await response.text();
     const { content } = marked.lexer(text);
-    const body = content.slice(content.findIndex(token => token.type === 'heading') -1);
+    const bodyStartIndex = content.findIndex(token => token.type === 'heading' || token.type === 'paragraph');
+    const body = content.slice(bodyStartIndex >= 0 ? bodyStartIndex : 0);
     const contentHtml = marked.parser(body);
     return { contentHtml };
 }
@@ -62,6 +69,8 @@ function applyConfig(config) {
         root.style.setProperty('--bg-image', 'none');
     }
     root.style.setProperty('--accent-color', config.accent_color || '#ffffff');
+    root.style.setProperty('--primary-text-color', config.primary_text_color || '#e0e0e0');
+    root.style.setProperty('--secondary-text-color', config.secondary_text_color || '#a0a0a0');
     if (config.font_family) {
         const fontName = config.font_family.split(',')[0].replace(/['"]/g, '').replace(/\s/g, '+');
         const fontLink = document.getElementById('main-font');
@@ -106,6 +115,7 @@ function renderRecentPosts() {
 
 function renderPostList(posts, page = 1) {
     mobileProfileContainer.style.display = 'none';
+    const loadMoreContainer = document.getElementById('load-more-container');
     const start = (page - 1) * postsPerPage;
     const end = start + postsPerPage;
     const postsToRender = posts.slice(start, end);
@@ -119,7 +129,7 @@ function renderPostList(posts, page = 1) {
     if (page === 1) grid.innerHTML = postsHtml;
     else grid.insertAdjacentHTML('beforeend', postsHtml);
     const isSearchActive = searchInput.value.length > 0;
-    loadMoreBtn.parentElement.style.display = (end >= posts.length || isSearchActive) ? 'none' : 'block';
+    loadMoreContainer.style.display = (end >= posts.length || isSearchActive) ? 'none' : 'block';
 }
 
 async function renderPost(postId) {
@@ -171,13 +181,38 @@ function renderProfile(data) {
     });
 }
 
-function loadGiscus(term) { /* 이전과 동일 */ }
+function loadGiscus(term) {
+    const commentsContainer = document.getElementById('comments-section');
+    if (!commentsContainer) return;
+    while (commentsContainer.firstChild) {
+        commentsContainer.removeChild(commentsContainer.firstChild);
+    }
+    const giscusScript = document.createElement('script');
+    giscusScript.src = 'https://giscus.app/client.js';
+    giscusScript.setAttribute('data-repo', GISCUS_REPO);
+    giscusScript.setAttribute('data-repo-id', GISCUS_REPO_ID);
+    giscusScript.setAttribute('data-category', 'Announcements');
+    giscusScript.setAttribute('data-category-id', GISCUS_CATEGORY_ID);
+    giscusScript.setAttribute('data-mapping', 'specific');
+    giscusScript.setAttribute('data-term', term);
+    giscusScript.setAttribute('data-theme', 'dark');
+    giscusScript.setAttribute('data-lang', 'ko');
+    giscusScript.setAttribute('data-strict', '0');
+    giscusScript.setAttribute('data-reactions-enabled', '1');
+    giscusScript.setAttribute('data-emit-metadata', '0');
+    giscusScript.setAttribute('data-input-position', 'bottom');
+    giscusScript.crossOrigin = 'anonymous';
+    giscusScript.async = true;
+    commentsContainer.appendChild(giscusScript);
+}
+
 async function router() {
     const hash = location.hash.substring(1);
     const decodedHash = decodeURIComponent(hash);
+    const loadMoreContainer = document.getElementById('load-more-container');
     if (window.allPosts.some(p => p.id === decodedHash)) {
         bannerContainer.style.display = 'none';
-        loadMoreBtn.parentElement.style.display = 'none';
+        loadMoreContainer.style.display = 'none';
         renderPost(decodedHash);
     } else {
         renderBanner(window.configData);
@@ -234,7 +269,3 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 window.addEventListener('hashchange', router);
-
-// Giscus 로더만 따로 남겨둡니다.
-const lg = (term) => { const c = document.getElementById('comments-section'); if (!c) return; while (c.firstChild) c.removeChild(c.firstChild); const s = document.createElement('script'); s.src = 'https://giscus.app/client.js'; s.setAttribute('data-repo', GISCUS_REPO); s.setAttribute('data-repo-id', GISCUS_REPO_ID); s.setAttribute('data-category', 'Announcements'); s.setAttribute('data-category-id', GISCUS_CATEGORY_ID); s.setAttribute('data-mapping', 'specific'); s.setAttribute('data-term', term); s.setAttribute('data-theme', 'dark'); s.setAttribute('data-lang', 'ko'); s.setAttribute('data-strict', '0'); s.setAttribute('data-reactions-enabled', '1'); s.setAttribute('data-emit-metadata', '0'); s.setAttribute('data-input-position', 'bottom'); s.crossOrigin = 'anonymous'; s.async = true; c.appendChild(s); };
-loadGiscus = lg;
