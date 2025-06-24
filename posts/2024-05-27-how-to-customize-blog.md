@@ -50,6 +50,3 @@ default_post_excerpt: '이 글의 요약이 없습니다.'
 
 ### 3. 변경사항 적용하기
 `config.md` 파일을 수정한 뒤 `git push`를 하면, 잠시 후 GitHub Actions가 자동으로 `metadata.json` 파일을 업데이트하고 블로그에 변경사항이 반영됩니다.
-```
-
----
