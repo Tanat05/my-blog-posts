@@ -14,6 +14,15 @@
       "pinned": true
     },
     {
+      "id": "posts/2024-05-29-basic-git-guide",
+      "title": "블로그 관리를 위한 최소한의 Git 가이드",
+      "choseongTitle": "ㅂㄹㄱ ㄱㄹㄹ ㅇㅎ ㅊㅅㅎㅇ Git ㄱㅇㄷ",
+      "date": "2024-05-29",
+      "excerpt": "터미널에서 Git을 사용하여 더 효율적으로 블로그 글을 관리하는 방법을 알아봅니다.",
+      "image": "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?q=80&w=1470",
+      "pinned": false
+    },
+    {
       "id": "posts/2024-05-28-how-to-upload-post",
       "title": "새 글 작성 및 고정글 관리 방법",
       "choseongTitle": "ㅅ ㄱ ㅈㅅ ㅁ ㄱㅈㄱ ㄱㄹ ㅂㅂ",
