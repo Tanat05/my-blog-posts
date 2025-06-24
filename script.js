@@ -34,28 +34,118 @@ const RECENT_POSTS_LIMIT = 5;
 let fuse;
 let currentDisplayedPosts = [];
 
-async function loadMetadata() {
-    try {
-        const response = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${DEFAULT_BRANCH}/public/metadata.json?t=${new Date().getTime()}`);
-        if (!response.ok) throw new Error('metadata.json not found. Check repository, branch name, and Actions build status.');
-        return await response.json();
-    } catch (error) {
-        console.error("Failed to load metadata:", error);
-        contentContainer.innerHTML = `<h3>블로그 데이터를 불러오는데 실패했습니다. <br> 레포지토리의 기본 브랜치 이름과 Actions 빌드 성공 여부를 확인해주세요.</h3>`;
-        return null;
-    }
+function parseFrontmatter(text) {
+    const frontmatter = {};
+    const frontmatterRegex = /^---\s*([\s\S]*?)\s*---/;
+    const match = frontmatterRegex.exec(text);
+    if (!match) return { frontmatter: {}, content: text };
+    const yaml = match[1];
+    const content = text.slice(match[0].length);
+    let currentListKey = null;
+    let lastListItem = null;
+    yaml.split('\n').forEach(line => {
+        if (line.trim() === '') return;
+        const indent = line.match(/^\s*/)[0].length;
+        if (indent === 0) {
+            currentListKey = null;
+            const parts = line.split(':');
+            const key = parts[0].trim();
+            const value = parts.slice(1).join(':').trim();
+            if (value) {
+                frontmatter[key] = value.replace(/^['"]|['"]$/g, '');
+            } else {
+                frontmatter[key] = [];
+                currentListKey = key;
+            }
+        } else if (currentListKey && /^\s*-/.test(line)) {
+            const itemMatch = line.match(/^\s*-\s*(\w+):\s*(.*)/);
+            if (itemMatch) {
+                const [, key, value] = itemMatch;
+                lastListItem = { [key]: value.replace(/^['"]|['"]$/g, '') };
+                frontmatter[currentListKey].push(lastListItem);
+            }
+        } else if (lastListItem && /^\s+/.test(line)) {
+            const subItemMatch = line.match(/^\s+(\w+):\s*(.*)/);
+            if(subItemMatch) {
+                const [, key, value] = subItemMatch;
+                lastListItem[key] = value.replace(/^['"]|['"]$/g, '');
+            }
+        }
+    });
+    return { frontmatter, content };
 }
 
-async function fetchSinglePost(postId) {
-    const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${DEFAULT_BRANCH}/${postId}.md`;
-    const response = await fetch(fileUrl);
-    if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
-    const text = await response.text();
-    const { content } = marked.lexer(text);
-    const bodyStartIndex = content.findIndex(token => token.type === 'heading' || token.type === 'paragraph');
-    const body = content.slice(bodyStartIndex >= 0 ? bodyStartIndex : 0);
-    const contentHtml = marked.parser(body);
-    return { contentHtml };
+function formatTitleFromId(id) {
+    const nameOnly = id.replace(/\.md$/, '');
+    const titlePart = nameOnly.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+    return titlePart.replace(/-+/g, ' ');
+}
+
+async function fetchAllPosts() {
+    const topLevelUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${POSTS_DIR}`;
+    const topLevelResponse = await fetch(topLevelUrl);
+    if (topLevelResponse.ok) {
+        const items = await topLevelResponse.json();
+        const hasFiles = items.some(item => item.type === 'file' && item.name.endsWith('.md'));
+        const hasDirs = items.some(item => item.type === 'dir');
+        if (hasFiles && hasDirs) {
+            throw new Error(`[폴더 구조 오류] 'posts' 폴더 안에 파일과 하위 폴더를 함께 사용할 수 없습니다. 한 가지 방식만 선택해주세요.`);
+        }
+    } else if (topLevelResponse.status !== 404) {
+        throw new Error(`API Error fetching ${POSTS_DIR}: ${topLevelResponse.statusText}`);
+    }
+
+    const [pinnedFiles, regularFiles] = await Promise.all([
+        recursivelyFetchFiles(PINNED_DIR),
+        recursivelyFetchFiles(POSTS_DIR)
+    ]);
+    
+    const pinnedPostPromises = processFiles(pinnedFiles, true);
+    const regularPostPromises = processFiles(regularFiles, false);
+    
+    const [pinnedPostsData, regularPostsData] = await Promise.all([
+        Promise.all(pinnedPostPromises),
+        Promise.all(regularPostPromises)
+    ]);
+    
+    const sortByDate = (a, b) => new Date(b.date) - new Date(a.date);
+    const sortedPinned = pinnedPostsData.sort(sortByDate);
+    const sortedRegular = regularPostsData.sort(sortByDate);
+    
+    return [...sortedPinned, ...sortedRegular];
+}
+
+const processFiles = (files, isPinned = false) => {
+    return files.map(async file => {
+        const id = file.path.replace(/\.md$/, '');
+        const fileResponse = await fetch(file.download_url);
+        const text = await fileResponse.text();
+        const { frontmatter } = parseFrontmatter(text);
+        const title = frontmatter.title || formatTitleFromId(file.name);
+        return { id, title, pinned: isPinned, choseongTitle: getChoseong(title), ...frontmatter };
+    });
+};
+
+async function recursivelyFetchFiles(path) {
+    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${path}`;
+    const response = await fetch(apiUrl);
+    if (!response.ok) {
+        if (response.status === 404) return [];
+        throw new Error(`API Error fetching ${path}: ${response.statusText}`);
+    }
+    const files = await response.json();
+    if (!Array.isArray(files)) return [];
+    
+    let markdownFiles = [];
+    for (const file of files) {
+        if (file.type === 'dir') {
+            const subFiles = await recursivelyFetchFiles(file.path);
+            markdownFiles.push(...subFiles);
+        } else if (file.name.endsWith('.md')) {
+            markdownFiles.push(file);
+        }
+    }
+    return markdownFiles;
 }
 
 function applyConfig(config) {
@@ -92,6 +182,44 @@ function renderBanner(config) {
         ${config.banner_text ? `<h1 class="banner-title">${config.banner_text}</h1>` : ''}
         ${config.banner_subtext ? `<p class="banner-subtitle">${config.banner_subtext}</p>` : ''}
     </div>`;
+}
+
+async function loadConfigData() {
+    try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${DEFAULT_BRANCH}/config.md`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('config.md not found');
+        const text = await response.text();
+        const { frontmatter } = parseFrontmatter(text);
+        return frontmatter;
+    } catch (error) {
+        console.error("Failed to load config data:", error);
+        return null;
+    }
+}
+
+async function fetchSinglePost(postId) {
+    const fileUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${DEFAULT_BRANCH}/${postId}.md`;
+    const response = await fetch(fileUrl);
+    if (!response.ok) throw new Error(`File load error: ${response.statusText}`);
+    const text = await response.text();
+    const { content } = parseFrontmatter(text);
+    const contentHtml = marked.parse(content);
+    return { contentHtml };
+}
+
+async function loadProfileData() {
+    try {
+        const url = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${DEFAULT_BRANCH}/profile.md`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('profile.md not found');
+        const text = await response.text();
+        const { frontmatter } = parseFrontmatter(text);
+        return frontmatter;
+    } catch (error) {
+        console.error("Failed to load profile data:", error);
+        return null;
+    }
 }
 
 function getRecentPosts() { return JSON.parse(sessionStorage.getItem('recentPosts') || '[]'); }
