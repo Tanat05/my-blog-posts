@@ -3,7 +3,6 @@
     {
       "id": "pinned/공지사항",
       "title": "공지사항",
-      "pinned": true,
       "choseongTitle": "ㄱㅈㅅㅎ",
       "date": "2025-06-24",
       "tags": [
@@ -11,12 +10,12 @@
         "코딩"
       ],
       "excerpt": "이것은 제 블로그의 테스트 글입니다. 깃허브와 Next.js를 이용해 만들고 있습니다.",
-      "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160"
+      "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160",
+      "pinned": true
     },
     {
       "id": "posts/테스트용 게시글",
       "title": "테스트용 게시글",
-      "pinned": false,
       "choseongTitle": "ㅌㅅㅌㅇ ㄱㅅㄱ",
       "date": "2025-06-24",
       "tags": [
@@ -24,60 +23,60 @@
         "코딩"
       ],
       "excerpt": "이것은 제 블로그의 테스트 글입니다. 깃허브와 Next.js를 이용해 만들고 있습니다.",
-      "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160"
+      "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160",
+      "pinned": false
     },
     {
       "id": "posts/2024-05-25-markdown-style-guide",
       "title": "마크 다운 작성 가이드",
-      "pinned": false,
       "choseongTitle": "ㅁㅋ ㄷㅇ ㅈㅅ ㄱㅇㄷ",
       "date": "2024-05-25",
       "excerpt": "이 블로그에서 사용할 수 있는 모든 마크다운 스타일을 확인해보세요.",
-      "image": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1470"
+      "image": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=1470",
+      "pinned": false
     },
     {
       "id": "posts/2024-05-24-welcome-to-my-blog",
       "title": "welcome to my blog",
-      "pinned": true,
       "choseongTitle": "welcome to my blog",
       "date": "2024-05-24",
       "excerpt": "제 블로그에 오신 것을 환영합니다! 이곳에서 저의 다양한 작업물들을 만나보세요.",
-      "image": "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=1287"
+      "image": "https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?q=80&w=1287",
+      "pinned": false
     },
     {
       "id": "posts/2024-05-23-first-doodle",
       "title": "first doodle",
-      "pinned": false,
       "choseongTitle": "first doodle",
       "date": "2024-05-23",
       "excerpt": "최근에 가볍게 그려본 낙서입니다. 재미있게 봐주세요.",
-      "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1470"
+      "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=1470",
+      "pinned": false
     },
     {
       "id": "posts/2023-10-29-important-post",
       "title": "가장 중요한 공지사항",
-      "pinned": true,
       "choseongTitle": "ㄱㅈ ㅈㅇㅎ ㄱㅈㅅㅎ",
       "date": "2023-10-29",
       "excerpt": "이 글은 항상 상단에 고정되어 보여집니다.",
-      "image": "https://github.com/Tanat05/my-blog-posts/blob/main/images/446642241_1164755628212425_6787874562801299869_n.jpg?raw=true"
+      "image": "https://github.com/Tanat05/my-blog-posts/blob/main/images/446642241_1164755628212425_6787874562801299869_n.jpg?raw=true",
+      "pinned": false
     },
     {
       "id": "posts/2023-10-28-second-post",
       "title": "두 번째 글입니다",
-      "pinned": false,
       "choseongTitle": "ㄷ ㅂㅉ ㄱㅇㄴㄷ",
       "date": "2023-10-28",
       "tags": [
         "Next.js"
       ],
       "excerpt": "두 번째 글에서는 Next.js의 장점에 대해 이야기해봅니다.",
-      "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160"
+      "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160",
+      "pinned": false
     },
     {
       "id": "posts/2023-10-27-my-first-post",
       "title": "나의 첫 포스트",
-      "pinned": false,
       "choseongTitle": "ㄴㅇ ㅊ ㅍㅅㅌ",
       "date": "2023-10-27",
       "tags": [
@@ -85,13 +84,14 @@
         "코딩"
       ],
       "excerpt": "이것은 제 블로그의 첫 번째 글입니다. 깃허브와 Next.js를 이용해 만들고 있습니다.",
-      "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160"
+      "image": "https://images-ext-1.discordapp.net/external/RKUdoTUQGz7WJav8zYHFTKdLxst3aF-YcEDY02TvLEU/%3Fwidth%3D160%26height%3D160/https/images-ext-1.discordapp.net/external/tyKYii-v19en4lIHJwTHGZcHfVHV_XMNjWVOKR1B2O8/https/cdn.discordapp.com/emojis/1322252776620687372.gif?width=160&height=160",
+      "pinned": false
     },
     {
       "id": "posts/ㅁㄴㅇㅁㄴㅇ",
       "title": "ㅁㄴㅇㅁㄴㅇ",
-      "pinned": false,
-      "choseongTitle": "ㅁㄴㅇㅁㄴㅇ"
+      "choseongTitle": "ㅁㄴㅇㅁㄴㅇ",
+      "pinned": false
     }
   ],
   "profile": {
